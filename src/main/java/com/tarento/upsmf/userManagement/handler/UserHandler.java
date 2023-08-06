@@ -10,32 +10,27 @@ import java.net.URISyntaxException;
 @Component
 public class UserHandler {
 
-    /*@Autowired
-    private UserService userService;*/
+    @Autowired
+    private UserService userService;
 
-    public /*ResponseEntity<JsonNode>*/ void createUser(final JsonNode body) throws URISyntaxException {
-        UserService userService = new UserService();
-        /*return*/ userService.createUser(body);
+    public ResponseEntity<JsonNode>  createUser(final JsonNode body) throws URISyntaxException {
+        return userService.createUser(body);
     }
 
-    public /*ResponseEntity<JsonNode>*/ void updateUser(final JsonNode body) throws URISyntaxException{
-        UserService userService = new UserService();
-        /*return*/ userService.updateUser(body);
+    public ResponseEntity<JsonNode>  updateUser(final JsonNode body) throws URISyntaxException{
+        return userService.updateUser(body);
     }
 
-    public /*ResponseEntity<JsonNode>*/ void listUser(final String userId) throws URISyntaxException{
-        UserService userService = new UserService();
-        /*return*/ userService.listUser(userId);
+    public ResponseEntity<JsonNode>  listUser(final JsonNode body) throws URISyntaxException{
+        return userService.listUser(body);
     }
 
-    public /*ResponseEntity<JsonNode>*/ void activateUser(final JsonNode body) throws URISyntaxException{
-        UserService userService = new UserService();
-        /*return*/ userService.activateUser(body);
+    public ResponseEntity<JsonNode>  activateUser(final JsonNode body) throws URISyntaxException{
+        return userService.activateUser(body);
     }
 
-    public /*ResponseEntity<JsonNode>*/ void deactivateUser(final JsonNode body) throws URISyntaxException{
-        UserService userService = new UserService();
-        /*return*/ userService.deactivateUser(body);
+    public ResponseEntity<JsonNode>  deactivateUser(final JsonNode body) throws URISyntaxException{
+        return userService.deactivateUser(body);
     }
 
 }
