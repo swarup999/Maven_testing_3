@@ -46,7 +46,6 @@ public class UserService {
         return result;
     }
     public ResponseEntity<JsonNode> updateUser(final JsonNode body) throws URISyntaxException {
-
         logger.info("Updating user...");
         RestTemplate restTemplate = new RestTemplate();
         // Create HttpClient with PATCH support
