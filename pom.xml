@@ -88,6 +88,11 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<version>2.7.14</version>
+				<configuration>
+					<mainClass>com.tarento.upsmf.userManagement.UserManagementApplication</mainClass>
+					<layout>JAR</layout>
+				</configuration>
+			</plugin>
 			</plugin>
 		</plugins>
 	</build>
