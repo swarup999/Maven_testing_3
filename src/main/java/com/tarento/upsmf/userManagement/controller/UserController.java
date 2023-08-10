@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URISyntaxException;
 
-@RestController(value = "/api/v1/user)")
+@RestController
+@RequestMapping(value = "/api/v1/user")
 public class UserController {
 
     @Autowired
@@ -37,5 +38,10 @@ public class UserController {
     @PostMapping(value = "/deactivate", consumes = "application/json", produces = "application/json")
     public ResponseEntity<JsonNode> deactivateUser(@RequestBody final JsonNode body) throws URISyntaxException {
         return userHandler.deactivateUser(body);
+    }
+
+    @GetMapping(value = "/otp", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<JsonNode> sendOTP(@RequestParam int  phoneNumber) throws URISyntaxException {
+        return userHandler.sendOtp(phoneNumber);
     }
 }
