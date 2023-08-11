@@ -46,7 +46,7 @@ public class UserService {
         return result;
     }
     public ResponseEntity<JsonNode> updateUser(final JsonNode body) throws URISyntaxException {
-        logger.info("Creating user...{} ", body.toPrettyString());
+        logger.info("updateUser user...{} ", body.toPrettyString());
         RestTemplate restTemplate = new RestTemplate();
         // Create HttpClient with PATCH support
         HttpClient httpClient = HttpClientBuilder.create().build();
@@ -62,7 +62,7 @@ public class UserService {
 
 
     public ResponseEntity<JsonNode> listUser(final JsonNode body) throws URISyntaxException{
-        logger.info("Creating user...{} ", body.toPrettyString());
+        logger.info("listUser user...{} ", body.toPrettyString());
         RestTemplate restTemplate = new RestTemplate();
         URI uri = new URI(BASE_URL + "/user/v1/search");
         HttpHeaders headers = getHeader();
@@ -72,7 +72,7 @@ public class UserService {
     }
 
     public ResponseEntity<JsonNode> activateUser(final JsonNode body) throws URISyntaxException{
-        logger.info("Creating user...{} ", body.toPrettyString());
+        logger.info("activateUser user...{} ", body.toPrettyString());
         RestTemplate restTemplate = new RestTemplate();
         URI uri = new URI(BASE_URL + "/user/v1/unblock");
         HttpHeaders headers = getHeader();
@@ -82,7 +82,7 @@ public class UserService {
     }
 
     public ResponseEntity<JsonNode> deactivateUser(final JsonNode body) throws URISyntaxException {
-        logger.info("Creating user...{} ", body.toPrettyString());
+        logger.info("deactivateUser user...{} ", body.toPrettyString());
         RestTemplate restTemplate = new RestTemplate();
         URI uri = new URI(BASE_URL + "/user/v1/block");
         HttpHeaders headers = getHeader();
@@ -92,7 +92,7 @@ public class UserService {
     }
 
     public ResponseEntity<JsonNode> sendOTP(int phoneNumber, String name, int otp) throws URISyntaxException {
-        logger.info("Creating user...{} ", body.toPrettyString());
+        logger.info("Sending OTP...");
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json; charset=utf8");
