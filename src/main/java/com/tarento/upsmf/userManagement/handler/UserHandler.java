@@ -33,8 +33,8 @@ public class UserHandler {
         return userService.deactivateUser(body);
     }
 
-    public ResponseEntity<JsonNode>  sendOTP(int  phoneNumber) throws URISyntaxException {
-        return userService.sendOTP(phoneNumber);
+    public ResponseEntity<JsonNode>  sendOTP(int  phoneNumber, String name, int otp) throws URISyntaxException {
+        return userService.sendOTP(phoneNumber, name, otp);
     }
 
 }
