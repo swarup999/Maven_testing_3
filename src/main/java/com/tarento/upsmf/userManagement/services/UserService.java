@@ -18,7 +18,6 @@ import java.nio.charset.StandardCharsets;
 @Component
 public class UserService {
 
-
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
@@ -36,6 +35,7 @@ public class UserService {
         String xAuthToken = env.getProperty("x-authenticated-user-token");
         headers.add("Authorization","Bearer " + authToken);
         headers.add("x-authenticated-user-token",xAuthToken);
+        return headers;
     }
 
     public ResponseEntity<JsonNode> createUser(final JsonNode body) throws URISyntaxException {
@@ -94,10 +94,10 @@ public class UserService {
 
     public ResponseEntity<String> sendOTP(String phoneNumber, String name, String otp) throws URISyntaxException {
         logger.info("Sending OTP to name : {} with OTP {} ...", name, otp);
-        String baseUrl = env.getProperty("otp_baseUrl");
-        String username = env.getProperty("userName");
-        String password = env.getProperty("password");
-        String senderId = env.getProperty("senderID");
+        String baseUrl = env.getProperty("otp.baseUrl");
+        String username = env.getProperty("otp.userName");
+        String password = env.getProperty("otp.password");
+        String senderId = env.getProperty("otp.senderID");
         String message = "Hello %s, Your OTP is %s UPSMF, Lucknow";
         String message1 = String.format(message,name,otp);
         String msgType = "TXT";
