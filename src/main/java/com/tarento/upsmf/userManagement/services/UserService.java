@@ -94,7 +94,7 @@ public class UserService {
 
     public ResponseEntity<String> sendOTP(String phoneNumber, String name, String otp) throws URISyntaxException {
         logger.info("Sending OTP to name : {} with OTP {} ...", name, otp);
-        String baseUrl = "";
+        String baseUrl = env.getProperty("otp_baseUrl");
         String username = env.getProperty("userName");
         String password = env.getProperty("password");
         String senderId = env.getProperty("senderID");
