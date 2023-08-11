@@ -91,7 +91,7 @@ public class UserService {
         return result;
     }
 
-    public ResponseEntity<JsonNode> sendOTP(int phoneNumber) throws URISyntaxException {
+    public ResponseEntity<JsonNode> sendOTP(int phoneNumber, String name, int otp) throws URISyntaxException {
         logger.info("sending otp...");
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -106,7 +106,8 @@ public class UserService {
         String username = "";
         String password = "";
         String senderId = "";
-        String message = "Hello abc, Your OTP is 1234 sfasa, Lucknow";
+        String message = "Hello %s, Your OTP is %s UPSMF, Lucknow";
+        String message1 = String.format(message,name,otp);
         String destMobileNo = "";
         String msgType = "TXT";
         String response = "Y";
@@ -114,7 +115,7 @@ public class UserService {
         String payload = "username=" + URLEncoder.encode(username, StandardCharsets.UTF_8)
                 + "&pass=" + URLEncoder.encode(password, StandardCharsets.UTF_8)
                 + "&senderid=" + URLEncoder.encode(senderId, StandardCharsets.UTF_8)
-                + "&message=" + URLEncoder.encode(message, StandardCharsets.UTF_8)
+                + "&message=" + URLEncoder.encode(message1, StandardCharsets.UTF_8)
                 + "&dest_mobileno=" + URLEncoder.encode(String.valueOf(phoneNumber), StandardCharsets.UTF_8)
                 + "&msgtype=" + URLEncoder.encode(msgType, StandardCharsets.UTF_8)
                 + "&response=" + URLEncoder.encode(response, StandardCharsets.UTF_8);
