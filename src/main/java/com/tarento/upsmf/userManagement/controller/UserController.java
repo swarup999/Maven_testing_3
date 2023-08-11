@@ -40,8 +40,8 @@ public class UserController {
         return userHandler.deactivateUser(body);
     }
 
-    @GetMapping(value = "/otp", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<JsonNode> sendOTP(@RequestParam int  phoneNumber) throws URISyntaxException {
-        return userHandler.sendOtp(phoneNumber);
+     @GetMapping(value = "/otp", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<JsonNode> sendOTP(@RequestParam int  phoneNumber, @RequestParam String name, @RequestParam int otp) throws URISyntaxException {
+        return userHandler.sendOTP(phoneNumber, name, otp);
     }
 }
