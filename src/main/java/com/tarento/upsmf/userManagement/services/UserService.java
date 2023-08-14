@@ -14,7 +14,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.*;
-import java.nio.charset.StandardCharsets;
 
 @Component
 public class UserService {
@@ -24,29 +23,44 @@ public class UserService {
     @Autowired
     private Environment env;
 
+
+
     private final RestTemplate restTemplate = new RestTemplate();
-    final String BASE_URL = "https://uphrh.in/api";
+    final String BASE_URL = env.getProperty("BaseURL");
+    final String KEYCLOAK_BASE_URL = env.getProperty("keycloak_BaseURL");
 
     private HttpHeaders getHeader(){
-        System.out.println(env.getProperty("BaseURL"));
-        logger.info("Getting headers...");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         String authToken = env.getProperty("AuthorizationToken");
         String xAuthToken = env.getProperty("x-authenticated-user-token");
         headers.add("Authorization","Bearer " + authToken);
         headers.add("x-authenticated-user-token",xAuthToken);
+        logger.info("Getting headers...{} ", headers);
+        return headers;
+    }
+
+    private HttpHeaders getHeaderForKeycloak(){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        String authToken = env.getProperty("AuthorizationToken");
+        headers.add("Authorization","Bearer " + authToken);
+        logger.info("Getting keycloak headers...{} ", headers);
         return headers;
     }
 
     public ResponseEntity<JsonNode> createUser(final JsonNode body) throws URISyntaxException {
         logger.info("Creating user...{} ", body.toPrettyString());
-        URI uri = new URI(BASE_URL + "/user/v1/sso/create");
+        URI uri1 = new URI(BASE_URL + "/user/v1/sso/create");
         HttpHeaders headers = getHeader();
         HttpEntity<JsonNode> httpEntity = new HttpEntity(body, headers);
-        ResponseEntity<JsonNode> result = restTemplate.postForEntity(uri,httpEntity,JsonNode.class);
+        ResponseEntity<JsonNode> result = restTemplate.postForEntity(uri1,httpEntity,JsonNode.class);
+        URI uri2 = new URI(KEYCLOAK_BASE_URL + "/v1/keycloak/user/create");
+        HttpHeaders headerForKeycloak = getHeader();
+        ResponseEntity<JsonNode> result2 = restTemplate.postForEntity(uri2,httpEntity,JsonNode.class);
         return result;
     }
+
     public ResponseEntity<JsonNode> updateUser(final JsonNode body) throws URISyntaxException {
         logger.info("updateUser user...{} ", body.toPrettyString());
         RestTemplate restTemplate = new RestTemplate();
@@ -61,7 +75,6 @@ public class UserService {
         ResponseEntity<JsonNode> result = restTemplate.exchange(uri, HttpMethod.PATCH, httpEntity, JsonNode.class);
         return result;
     }
-
 
     public ResponseEntity<JsonNode> listUser(final JsonNode body) throws URISyntaxException{
         logger.info("listUser user...{} ", body.toPrettyString());
@@ -118,6 +131,26 @@ public class UserService {
         headers.add("Accept", "application/json");
         HttpEntity<?> httpEntity = new HttpEntity<>(headers);
         ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.GET, httpEntity, String.class);
+        return result;
+    }
+
+    public ResponseEntity<String> generateOTP(String email) throws URISyntaxException {
+        logger.info("generate OTP for user...{} ", email);
+        RestTemplate restTemplate = new RestTemplate();
+        URI uri = new URI(BASE_URL + "/user/generateOtp");
+        HttpHeaders headerForKeycloak = getHeaderForKeycloak();
+        HttpEntity httpEntity = new HttpEntity(email, headerForKeycloak);
+        ResponseEntity<String> result = restTemplate.postForEntity(uri,httpEntity,String.class);
+        return result;
+    }
+
+    public ResponseEntity<String> login(final JsonNode body) throws URISyntaxException {
+        logger.info("login user ...{} ", body);
+        RestTemplate restTemplate = new RestTemplate();
+        URI uri = new URI(BASE_URL + "/user/login");
+        HttpHeaders headerForKeycloak = getHeaderForKeycloak();
+        HttpEntity httpEntity = new HttpEntity(body, headerForKeycloak);
+        ResponseEntity<String> result = restTemplate.postForEntity(uri,httpEntity,String.class);
         return result;
     }
 }

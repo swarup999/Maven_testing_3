@@ -26,7 +26,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/list", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<JsonNode> listUser(@RequestBody final JsonNode body) throws URISyntaxException {
+    public java.util.List<org.keycloak.representations.idm.UserRepresentation> listUser(@RequestBody final JsonNode body) throws URISyntaxException {
         return userHandler.listUser(body);
     }
 
@@ -40,8 +40,19 @@ public class UserController {
         return userHandler.deactivateUser(body);
     }
 
-     @GetMapping(value = "/otp", produces = "application/json")
+    @GetMapping(value = "/sms/otp", produces = "application/json")
     public ResponseEntity<String> sendOTP(@RequestParam String phoneNumber, @RequestParam String name, @RequestParam String otp) throws URISyntaxException {
         return userHandler.sendOTP(phoneNumber, name, otp);
     }
+
+    @PostMapping(value = "/keycloak/otp", produces = "application/json")
+    public ResponseEntity<String> generateOTP(@RequestParam String email) throws URISyntaxException {
+        return userHandler.generateOTP(email);
+    }
+
+    @PostMapping(value = "/keycloak/login", produces = "application/json")
+    public ResponseEntity<String> login(@RequestParam final JsonNode body ) throws URISyntaxException {
+        return userHandler.login(body);
+    }
+
 }
