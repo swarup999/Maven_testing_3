@@ -2,16 +2,18 @@ package com.tarento.upsmf.userManagement.handler;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tarento.upsmf.userManagement.model.KeyCloakUserDTO;
-import com.tarento.upsmf.userManagement.services.KeyCloakUsers;
 import com.tarento.upsmf.userManagement.services.UserService;
-import org.keycloak.representations.idm.UserRepresentation;
+import com.tarento.upsmf.userManagement.utility.KeycloakUserActivateDeActivate;
+import com.tarento.upsmf.userManagement.utility.KeycloakUserCreator;
+import com.tarento.upsmf.userManagement.utility.KeycloakUserGetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -22,11 +24,16 @@ public class UserHandler {
     private UserService userService;
 
     @Autowired
-    private KeyCloakUsers keyCloakUsers;
+    private KeycloakUserCreator keycloakUserCreator;
 
-    public ResponseEntity<JsonNode>  createUser(final JsonNode body) throws URISyntaxException {
+    @Autowired
+    private KeycloakUserGetter keycloakUserGetter;
+
+    @Autowired
+    private KeycloakUserActivateDeActivate keycloakUserActivateDeActivate;
+
+    public ResponseEntity<JsonNode>  createUser(final JsonNode body) throws URISyntaxException, IOException {
         logger.info("creating user with payload {} ", body.toPrettyString());
-        ResponseEntity<JsonNode> user = userService.createUser(body);
 
         JsonNode request = body.get("request");
         KeyCloakUserDTO keyCloakUserDTO = KeyCloakUserDTO.builder()
@@ -45,13 +52,13 @@ public class UserHandler {
                 .username(UUID.randomUUID().toString())
                 .build();
         logger.info("creating user in keycloak with payload {} ", keyCloakUserDTO);
-        javax.ws.rs.core.Response response = keyCloakUsers.createUser(keyCloakUserDTO);
+        String respone = keycloakUserCreator.createUser(body);
+        logger.info("user created ? {}", respone);
+        ResponseEntity<JsonNode> user = userService.createUser(body);
         return user;
     }
 
-    public ResponseEntity<JsonNode>  updateUser(final JsonNode body) throws URISyntaxException{
-        logger.info("updating user with payload {} ", body.toPrettyString());
-        ResponseEntity<JsonNode> jsonNodeResponseEntity = userService.updateUser(body);
+    public ResponseEntity<JsonNode>  updateUser(final JsonNode body) throws URISyntaxException, IOException {
 
         JsonNode request = body.get("request");
         KeyCloakUserDTO keyCloakUserDTO = KeyCloakUserDTO.builder()
@@ -70,28 +77,39 @@ public class UserHandler {
                 .activeStatus(getorDefault(request,"activeStatus",""))
                 .build();
         logger.info("updating user in keycloak with payload {} ", keyCloakUserDTO);
-        keyCloakUsers.updateUser(keyCloakUserDTO);
-        return jsonNodeResponseEntity;
+        String userName = keycloakUserGetter.findUser(request.get("userName").asText());
+
+        logger.info("updating user with payload {} ", body.toPrettyString());
+        ResponseEntity<JsonNode> jsonNodeResponseEntity = userService.updateUser(body);
+
+        return null;
     }
 
-    public List<UserRepresentation> listUser(final JsonNode body) throws URISyntaxException{
+    public String listUser(final JsonNode body) throws URISyntaxException, IOException {
         logger.info("creating user with payload {} ", body.toPrettyString());
+        String users = keycloakUserGetter.findUser(null);
+
         ResponseEntity<JsonNode> jsonNodeResponseEntity = userService.listUser(body);
-        List<UserRepresentation> listUsers = keyCloakUsers.listUser();
-        return listUsers;
+
+        return users;
     }
 
-    public ResponseEntity<JsonNode>  activateUser(final JsonNode body) throws URISyntaxException{
-        logger.info("creating user with payload {} ", body.toPrettyString());
+    public ResponseEntity<JsonNode>  activateUser(final JsonNode body) throws URISyntaxException, IOException {
+        logger.info("activating user with payload {} ", body.toPrettyString());
+        JsonNode request = body.get("request");
+        keycloakUserActivateDeActivate.activateDeactivatUser(request.get("userName").asText(), true);
+
         ResponseEntity<JsonNode> jsonNodeResponseEntity = userService.activateUser(body);
-        keyCloakUsers.activateUser(body.get("").asText());
         return jsonNodeResponseEntity;
     }
 
-    public ResponseEntity<JsonNode>  deactivateUser(final JsonNode body) throws URISyntaxException{
-        logger.info("creating user with payload {} ", body.toPrettyString());
+    public ResponseEntity<JsonNode>  deactivateUser(final JsonNode body) throws URISyntaxException, IOException {
+        logger.info("deactivating user with payload {} ", body.toPrettyString());
+
+        JsonNode request = body.get("request");
+        keycloakUserActivateDeActivate.activateDeactivatUser(request.get("userName").asText(), false);
+
         ResponseEntity<JsonNode> jsonNodeResponseEntity = userService.deactivateUser(body);
-        keyCloakUsers.deactivateUser(body.get("").asText());
         return jsonNodeResponseEntity;
     }
 
@@ -115,5 +133,4 @@ public class UserHandler {
     private String getorDefault(final JsonNode request, final String key, final String defaultValue){
         return request.get(key) != null ? request.get(key).asText() : defaultValue;
     }
-
 }
