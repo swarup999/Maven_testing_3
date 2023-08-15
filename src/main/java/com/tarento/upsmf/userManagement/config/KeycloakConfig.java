@@ -6,40 +6,57 @@ import lombok.extern.slf4j.Slf4j;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
 
 @Component
 @Data
-@Builder
 @PropertySource(value = "classpath:application.properties", ignoreResourceNotFound = true)
 @Slf4j
 public class KeycloakConfig {
 
-    //To be appended with /auth if keycloak version is less than 17
-    @Value("${keycloak.auth-server-url}")
+    @Autowired
+    private Environment env;
+
+    private static Environment environment;
+    String BASE_URL;
+    Keycloak keycloak = null;
+
     private String serverUrl;
 
-    @Value("${keycloak.realm}")
-    private String realm;
+    public String realm;
 
-    @Value("${keycloak.client-id}")
     private String clientId;
 
-    @Value("${keycloak.credentials.secret}")
     private String clientSecret;
 
-    @Value("${keycloak.admin-username}")
     private String userName;
 
-    @Value("${keycloak.admin-password}")
     private String password;
 
-    @Value("${keycloak.grant-type}")
     private String grantType;
 
-    Keycloak keycloak = null;
+    @PostConstruct
+    public void init(){
+        environment = env;
+        BASE_URL = getPopertyValue("BaseURL");
+        serverUrl = getPopertyValue("keycloak.auth-server-url");
+        realm = getPopertyValue("keycloak.realm");
+        clientId = getPopertyValue("keycloak.client-id");
+        clientSecret = getPopertyValue("keycloak.credentials.secret");
+        userName = getPopertyValue("keycloak.admin-username");
+        password = getPopertyValue("keycloak.admin-password");
+        grantType = getPopertyValue("keycloak.grant-type");
+    }
+
+    public static String getPopertyValue(String property){
+        return environment.getProperty(property);
+    }
 
     public Keycloak getKeycloakInstance() {
         log.info("keycloak real {} and server url {} .", realm, serverUrl);
