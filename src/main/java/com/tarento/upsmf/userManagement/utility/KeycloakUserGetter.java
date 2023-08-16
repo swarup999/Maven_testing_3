@@ -43,11 +43,15 @@ public class KeycloakUserGetter {
     }
     public String findUser(final String userID) throws IOException {
         String userEndpoint = KEYCLOAK_USER_BASE_URL;
+        logger.info("userEndpoint: " ,userEndpoint);
         if(userID != null ) {
             userEndpoint = userEndpoint + "/" + userID;
         }
+        logger.info("userEndpoint after adding useerId : " ,userEndpoint);
         JsonNode adminToken = keycloakTokenRetriever.getAdminToken();
+        logger.info("adminToken: " ,adminToken);
         String accessToken = adminToken.get("access_token").asText();
+        logger.info("accessToken: " ,accessToken);
 
         HttpClient httpClient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(userEndpoint);
@@ -57,6 +61,7 @@ public class KeycloakUserGetter {
 
         org.apache.http.HttpResponse response = httpClient.execute(httpGet);
         String responseBody = EntityUtils.toString(response.getEntity());
+        logger.info("ResponseBody {}", responseBody);
         return responseBody;
     }
 }

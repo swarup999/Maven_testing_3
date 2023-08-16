@@ -53,7 +53,7 @@ public class KeycloakTokenRetriever {
     }
     public JsonNode getAdminToken() throws IOException {
         String tokenEndpoint = ADMIN_TOKEN_ENDPOINT;
-
+        logger.info("Token endpoint: {}" ,tokenEndpoint);
         HttpClient httpClient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(tokenEndpoint);
 
@@ -65,11 +65,13 @@ public class KeycloakTokenRetriever {
             "&client_id=admin-cli" +
             "&client_secret=" + ADMIN_TOKEN_SECRET;
 
+        logger.info("Request body: {}", requestBody);
         StringEntity entity = new StringEntity(requestBody);
         httpPost.setEntity(entity);
 
         org.apache.http.HttpResponse response = httpClient.execute(httpPost);
         String responseBody = EntityUtils.toString(response.getEntity());
+        logger.info("Response body: {}", responseBody);
         JsonNode jsonNode = mapper.readTree(responseBody);
         return jsonNode;
     }
