@@ -1,12 +1,15 @@
 package com.tarento.upsmf.userManagement.utility;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BufferedHeader;
+import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.util.UUID;
 
 @Component
 @PropertySource({ "classpath:application.properties" })
@@ -64,7 +68,7 @@ public class KeycloakUserCreator {
         String password = request.get("password").asText();
         String requestBody = "{" +
             "\"enabled\": true," +
-            "\"username\": " + "\"" +userName + "\"" + "," +
+            "\"username\": " + "\"" + UUID.randomUUID().toString() + "\"" + "," +
             "\"email\": " + "\"" + email + "\"" + "," +
             "\"firstName\": " + "\"" + firstName + "\"" + "," +
             "\"lastName\": " + "\"" + lastName + "\"" + "," +
@@ -79,7 +83,9 @@ public class KeycloakUserCreator {
         httpPost.setEntity(entity);
 
         HttpResponse response = httpClient.execute(httpPost);
-        String responseBody = EntityUtils.toString(response.getEntity());
+        CharArrayBuffer buffer = ((BufferedHeader) response.getHeaders("Location")[0]).getBuffer();
+        String resp = new String(buffer.buffer());
+        String responseBody = resp.substring(resp.lastIndexOf("/")+1).trim();
         logger.info("ResponseBody {}", responseBody);
         return responseBody;
     }
