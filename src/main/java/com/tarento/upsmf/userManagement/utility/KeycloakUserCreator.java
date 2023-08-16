@@ -83,9 +83,10 @@ public class KeycloakUserCreator {
         httpPost.setEntity(entity);
 
         HttpResponse response = httpClient.execute(httpPost);
-        CharArrayBuffer buffer = ((BufferedHeader) response.getHeaders("Location")[0]).getBuffer();
+        /*CharArrayBuffer buffer = ((BufferedHeader) response.getHeaders("Location")[0]).getBuffer();
         String resp = new String(buffer.buffer());
-        String responseBody = resp.substring(resp.lastIndexOf("/")+1).trim();
+        String responseBody = resp.substring(resp.lastIndexOf("/")+1).trim();*/
+        String responseBody = EntityUtils.toString(response.getEntity());
         logger.info("ResponseBody {}", responseBody);
         return responseBody;
     }
