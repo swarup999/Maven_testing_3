@@ -45,8 +45,11 @@ public class KeycloakUserCreator {
     }
     public String createUser(final JsonNode body) throws IOException {
         String keycloakBaseUrl = KEYCLOAK_USER_BASE_URL;
+        logger.info("keycloakBaseUrl: " ,keycloakBaseUrl);
         JsonNode adminToken = keycloakTokenRetriever.getAdminToken();
+        logger.info("adminToken: {}" ,adminToken);
         String accessToken = adminToken.get("access_token").asText();
+        logger.info("accessToken: {}" ,accessToken);
         HttpClient httpClient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(keycloakBaseUrl);
 
@@ -71,12 +74,13 @@ public class KeycloakUserCreator {
                 "\"temporary\": false" +
             "}]" +
         "}";
-
+        logger.info("Request body: {}", requestBody);
         StringEntity entity = new StringEntity(requestBody);
         httpPost.setEntity(entity);
 
         HttpResponse response = httpClient.execute(httpPost);
         String responseBody = EntityUtils.toString(response.getEntity());
+        logger.info("ResponseBody {}", responseBody);
         return responseBody;
     }
 }
