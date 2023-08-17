@@ -42,35 +42,30 @@ public class KeycloakUserUpdater {
         return environment.getProperty(property);
     }
 
-    public void updateUser() throws IOException {
+    public String updateUser(final JsonNode requestBody, final String userName) throws IOException {
         JsonNode adminToken = keycloakTokenRetriever.getAdminToken();
         logger.info("adminToken: {}" ,adminToken);
         String accessToken = adminToken.get("access_token").asText();
         HttpClient httpClient = HttpClients.createDefault();
-        HttpPut httpPut = new HttpPut(KEYCLOAK_USER_BASE_URL);
+        HttpPut httpPut = new HttpPut(KEYCLOAK_USER_BASE_URL + "/" + userName);
 
         httpPut.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
         httpPut.setHeader(HttpHeaders.ACCEPT, "application/json, text/plain, */*");
         httpPut.setHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=UTF-8");
-
-        String requestBody = "{" +
-            "\"firstName\": true," +
-            "\"lastName\": {}," +
-            "\"email\": \"def.ghi@yopmail.com\"," +
-            "\"emailVerified\": true" +
-        "}";
         logger.info("Request body: {}", requestBody);
-        StringEntity entity = new StringEntity(requestBody);
+        StringEntity entity = new StringEntity(requestBody.toPrettyString());
         httpPut.setEntity(entity);
-
         HttpResponse response = httpClient.execute(httpPut);
-        String responseBody = EntityUtils.toString(response.getEntity());
+        String responseBody = "";
+        if(response.getEntity() != null) {
+            responseBody = EntityUtils.toString(response.getEntity());
+        }
         logger.info("ResponseBody {}", responseBody);
         if (response.getStatusLine().getStatusCode() == 204) {
-            System.out.println("User updated successfully.");
+            responseBody = " Status 200. User updated successfully.";
         } else {
-            System.out.println("Failed to update user.");
-            System.out.println("Response: " + responseBody);
+            responseBody = "Failed to update user." + responseBody;
         }
+        return responseBody;
     }
 }

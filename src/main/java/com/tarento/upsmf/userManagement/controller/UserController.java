@@ -22,7 +22,7 @@ public class UserController {
     }
 
     @PutMapping(value = "/update", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<JsonNode> updateUser(@RequestBody final JsonNode body) throws URISyntaxException, IOException {
+    public String updateUser(@RequestBody final JsonNode body) throws URISyntaxException, IOException {
         return userHandler.updateUser(body);
     }
 

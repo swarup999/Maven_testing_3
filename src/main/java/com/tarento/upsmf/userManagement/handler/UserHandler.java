@@ -41,31 +41,18 @@ public class UserHandler {
         return user;
     }
 
-    public ResponseEntity<JsonNode>  updateUser(final JsonNode body) throws URISyntaxException, IOException {
-
+    public String updateUser(final JsonNode body) throws URISyntaxException, IOException {
         JsonNode request = body.get("request");
-        KeyCloakUserDTO keyCloakUserDTO = KeyCloakUserDTO.builder()
-                .email(getorDefault(request,"email",""))
-                .name(getorDefault(request,"name",""))
-                .instituteName(getorDefault(request,"instituteName",""))
-                .instituteID(getorDefault(request,"instituteID",""))
-                .lastName(getorDefault(request,"lastName",""))
-                .instituteDistrict(getorDefault(request,"instituteDistrict",""))
-                .password(getorDefault(request,"password",""))
-                .role(getorDefault(request,"role",""))
-                .aadharNumber(getorDefault(request,"aadharNumber",""))
-                .phoneNumber(getorDefault(request,"phoneNumber",""))
-                .username(getorDefault(request,"username",""))
-                .registerNumber(getorDefault(request,"registerNumber",""))
-                .activeStatus(getorDefault(request,"activeStatus",""))
-                .build();
-        logger.info("updating user in keycloak with payload {} ", keyCloakUserDTO);
-        keycloakUserUpdater.updateUser();
-
-        logger.info("updating user with payload {} ", body.toPrettyString());
-        ResponseEntity<JsonNode> jsonNodeResponseEntity = userService.updateUser(body);
-
-        return null;
+        logger.info("updating user in keycloak with payload {} ", body.toPrettyString());
+        String userName = body.get("userName").asText();
+        String respone = keycloakUserUpdater.updateUser(request, userName);
+        logger.info("updating user with payload {} ", request.toPrettyString());
+        try {
+            ResponseEntity<JsonNode> jsonNodeResponseEntity = userService.updateUser(body);
+        } catch (Exception exception){
+            logger.error("Exception while updating user info.", exception);
+        }
+        return respone;
     }
 
     public String userDetails(final JsonNode body) throws IOException {
