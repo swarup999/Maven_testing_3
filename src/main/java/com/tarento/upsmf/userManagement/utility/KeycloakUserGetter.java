@@ -35,10 +35,10 @@ public class KeycloakUserGetter {
     @PostConstruct
     public void init(){
         environment = env;
-        KEYCLOAK_USER_BASE_URL = getPopertyValue("keycloak.user.baseURL");
+        KEYCLOAK_USER_BASE_URL = getPropertyValue("keycloak.user.baseURL");
     }
 
-    public static String getPopertyValue(String property){
+    public static String getPropertyValue(String property){
         return environment.getProperty(property);
     }
     public String findUser(final String userID) throws IOException {
@@ -47,7 +47,7 @@ public class KeycloakUserGetter {
         if(userID != null ) {
             userEndpoint = userEndpoint + "/" + userID;
         }
-        logger.info("userEndpoint after adding useerId : " ,userEndpoint);
+        logger.info("userEndpoint after adding userId : " ,userEndpoint);
         JsonNode adminToken = keycloakTokenRetriever.getAdminToken();
         logger.info("adminToken: " ,adminToken);
         String accessToken = adminToken.get("access_token").asText();

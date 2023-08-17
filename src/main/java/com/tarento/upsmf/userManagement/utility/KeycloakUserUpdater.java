@@ -1,5 +1,6 @@
 package com.tarento.upsmf.userManagement.utility;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -9,27 +10,53 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 
+@Component
+@PropertySource({ "classpath:application.properties" })
 public class KeycloakUserUpdater {
 
-    private static final Logger logger = LoggerFactory.getLogger(KeycloakUserUpdater.class);
-    public static void main(String[] args) throws IOException {
-        String keycloakBaseUrl = "http://localhost:8080/auth/admin/realms/example/users";
-        String accessToken = "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJUM3F6M0t6TnNYamx2ZmNVX1FKY1R6eHJJUjgwNGlKWnktaE1uSU96dktrIn0.eyJqdGkiOiIyZmYyNjU3NS0yMTE4LTQzYjctYmYxNi05MzIzOTc5ZjAxOTEiLCJleHAiOjE2OTIxMDU5MDMsIm5iZiI6MCwiaWF0IjoxNjkyMTA1ODQzLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODAvYXV0aC9yZWFsbXMvbWFzdGVyIiwic3ViIjoiM2UxOGExYjMtYTM5YS00MDhhLWIwYmYtMjJhMWJkOGY4ZDk1IiwidHlwIjoiQmVhcmVyIiwiYXpwIjoic2VjdXJpdHktYWRtaW4tY29uc29sZSIsIm5vbmNlIjoiYzU5YzM4NGYtOTY5My00ODdkLTg0OGQtNmFmYmViMGM0ODM4IiwiYXV0aF90aW1lIjoxNjkyMTA0Njk5LCJzZXNzaW9uX3N0YXRlIjoiNTY5NTlhN2QtNjBjYi00YzI5LTg0ZmQtNGNkYjdhYzA0N2U0IiwiYWNyIjoiMSIsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsIm5hbWUiOiJtYWhlc2ggbWFuZXkgciIsInByZWZlcnJlZF91c2VybmFtZSI6ImFkbWluIiwiZ2l2ZW5fbmFtZSI6Im1haGVzaCIsImZhbWlseV9uYW1lIjoibWFuZXkgciIsImVtYWlsIjoibWFoZXNoLm1hbmV5QGdtYWlsLmNvbSJ9.LeSON6AeD__ZRI5D2Dexca51tF4vP2BrP4y1H3y_BdrGKy6Gu_QV5bTtjuqjiY8txM-C9ADd7jSXohtpPWHdcgj_bSAaFwWR3U0NliKBusXgSgQpyyCZ5aCkT7JYICZnG2_nvEC6AN1YCuc_hglwEhksWaNoU0KbnjTxnSDxb2HPhM7mYkkObMLZpqpyavYls5JpSaer-n6zNaPh7snyy-EhyXralYaqq0nXJ5uIsIjXxp9NSBchbi4KD-K0xCwRFAWInNkXJcPVKsWv2_nImuUOX_k56ePVQrRZN2KAb7pcuv2T7F4N3gTItt_UUlPdHXMGN3M10M8Ndun_4L7cVw"; // Replace with your access token
+    @Autowired
+    private Environment env;
 
+    @Autowired
+    private KeycloakTokenRetriever keycloakTokenRetriever;
+    private static Environment environment;
+    private static final Logger logger = LoggerFactory.getLogger(KeycloakUserUpdater.class);
+
+    private String KEYCLOAK_USER_BASE_URL;
+
+    @PostConstruct
+    public void init(){
+        environment = env;
+        KEYCLOAK_USER_BASE_URL = getPropertyValue("keycloak.user.baseURL");
+    }
+
+    public static String getPropertyValue(String property){
+        return environment.getProperty(property);
+    }
+
+    public void updateUser() throws IOException {
+        JsonNode adminToken = keycloakTokenRetriever.getAdminToken();
+        logger.info("adminToken: {}" ,adminToken);
+        String accessToken = adminToken.get("access_token").asText();
         HttpClient httpClient = HttpClients.createDefault();
-        HttpPut httpPut = new HttpPut(keycloakBaseUrl);
+        HttpPut httpPut = new HttpPut(KEYCLOAK_USER_BASE_URL);
 
         httpPut.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
         httpPut.setHeader(HttpHeaders.ACCEPT, "application/json, text/plain, */*");
         httpPut.setHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=UTF-8");
 
         String requestBody = "{" +
-            "\"enabled\": true," +
-            "\"attributes\": {}," +
-            "\"username\": \"def.ghi@yopmail.com\"," +
+            "\"firstName\": true," +
+            "\"lastName\": {}," +
+            "\"email\": \"def.ghi@yopmail.com\"," +
             "\"emailVerified\": true" +
         "}";
         logger.info("Request body: {}", requestBody);

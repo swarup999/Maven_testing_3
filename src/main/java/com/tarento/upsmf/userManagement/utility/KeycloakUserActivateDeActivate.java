@@ -37,15 +37,15 @@ public class KeycloakUserActivateDeActivate {
     @PostConstruct
     public void init(){
         environment = env;
-        KEYCLOAK_USER_BASE_URL = getPopertyValue("keycloak.user.baseURL");
+        KEYCLOAK_USER_BASE_URL = getPropertyValue("keycloak.user.baseURL");
     }
 
-    public static String getPopertyValue(String property){
+    public static String getPropertyValue(String property){
         return environment.getProperty(property);
     }
     public String activateDeactivatUser(final String userName, boolean activate) throws IOException {
         String userEndpoint = KEYCLOAK_USER_BASE_URL + "/" + userName;
-        logger.info("User {} is being acivated ? : {} with userEndPoint : {}",userName, activate, userEndpoint);
+        logger.info("User {} is being activated ? : {} with userEndPoint : {}",userName, activate, userEndpoint);
         JsonNode adminToken = keycloakTokenRetriever.getAdminToken();
         String accessToken = adminToken.get("access_token").asText();
 

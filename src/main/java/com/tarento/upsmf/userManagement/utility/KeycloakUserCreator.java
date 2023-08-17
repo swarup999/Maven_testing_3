@@ -1,6 +1,8 @@
 package com.tarento.upsmf.userManagement.utility;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
@@ -34,6 +36,9 @@ public class KeycloakUserCreator {
     @Autowired
     private KeycloakTokenRetriever keycloakTokenRetriever;
 
+    @Autowired
+    private KeycloakUserCredentialPersister keycloakUserCredentialPersister;
+
     private static Environment environment;
 
     private String KEYCLOAK_USER_BASE_URL;
@@ -41,13 +46,14 @@ public class KeycloakUserCreator {
     @PostConstruct
     public void init(){
         environment = env;
-        KEYCLOAK_USER_BASE_URL = getPopertyValue("keycloak.user.baseURL");
+        KEYCLOAK_USER_BASE_URL = getPropertyValue("keycloak.user.baseURL");
     }
 
-    public static String getPopertyValue(String property){
+    public static String getPropertyValue(String property){
         return environment.getProperty(property);
     }
-    public String createUser(final JsonNode body) throws IOException {
+    public String createUser(final JsonNode request) throws IOException {
+        JsonNode body = request.get("request");
         String keycloakBaseUrl = KEYCLOAK_USER_BASE_URL;
         logger.info("keycloakBaseUrl: " ,keycloakBaseUrl);
         JsonNode adminToken = keycloakTokenRetriever.getAdminToken();
@@ -60,33 +66,23 @@ public class KeycloakUserCreator {
         httpPost.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
         httpPost.setHeader(HttpHeaders.ACCEPT, "application/json");
         httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=UTF-8");
-        JsonNode request = body.get("request");
-        String userName = request.get("userName").asText();
-        String firstName = request.get("firstName").asText();
-        String lastName = request.get("lastname").asText();
-        String email = request.get("email").asText();
-        String password = request.get("password").asText();
-        String requestBody = "{" +
-            "\"enabled\": true," +
-            "\"username\": " + "\"" + UUID.randomUUID().toString() + "\"" + "," +
-            "\"email\": " + "\"" + email + "\"" + "," +
-            "\"firstName\": " + "\"" + firstName + "\"" + "," +
-            "\"lastName\": " + "\"" + lastName + "\"" + "," +
-            "\"credentials\": [{" +
-                "\"type\": \"password\"," +
-                "\"value\": " + "\"" + password + "\"" + "," +
-                "\"temporary\": false" +
-            "}]" +
-        "}";
-        logger.info("Request body: {}", requestBody);
-        StringEntity entity = new StringEntity(requestBody);
+        String userName = UUID.randomUUID().toString();
+        ((ObjectNode)body).put("username",userName);
+        logger.info("Request body: {}", body);
+        StringEntity entity = new StringEntity(body.toPrettyString());
         httpPost.setEntity(entity);
 
         HttpResponse response = httpClient.execute(httpPost);
-        /*CharArrayBuffer buffer = ((BufferedHeader) response.getHeaders("Location")[0]).getBuffer();
-        String resp = new String(buffer.buffer());
-        String responseBody = resp.substring(resp.lastIndexOf("/")+1).trim();*/
         String responseBody = EntityUtils.toString(response.getEntity());
+        if (response.getStatusLine().getStatusCode() == 201) {
+            String password = ((ArrayNode)body.get("credentials")).get(0).get("value").asText();
+            try {
+                String strResponse = keycloakUserCredentialPersister.persistUserInfo(userName, password);
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+            responseBody = "200";
+        }
         logger.info("ResponseBody {}", responseBody);
         return responseBody;
     }

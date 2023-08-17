@@ -42,13 +42,13 @@ public class KeycloakTokenRetriever {
     @PostConstruct
     public void init(){
         environment = env;
-        ADMIN_TOKEN_ENDPOINT = getPopertyValue("adminToken.endPoint");
-        ADMIN_TOKEN_SECRET = getPopertyValue("adminToken.clientSecret");
-        ADMIN_USERNAME = getPopertyValue("adminToken.userName");
-        ADMIN_PASSWORD = getPopertyValue("adminToken.password");
+        ADMIN_TOKEN_ENDPOINT = getPropertyValue("adminToken.endPoint");
+        ADMIN_TOKEN_SECRET = getPropertyValue("adminToken.clientSecret");
+        ADMIN_USERNAME = getPropertyValue("adminToken.userName");
+        ADMIN_PASSWORD = getPropertyValue("adminToken.password");
     }
 
-    public static String getPopertyValue(String property){
+    public static String getPropertyValue(String property){
         return environment.getProperty(property);
     }
     public JsonNode getAdminToken() throws IOException {
