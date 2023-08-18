@@ -17,7 +17,7 @@ public class UserController {
     private UserHandler userHandler;
 
     @PostMapping(value = "/create", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<JsonNode> createUser(@RequestBody final JsonNode body) throws URISyntaxException, IOException {
+    public String createUser(@RequestBody final JsonNode body) throws URISyntaxException, IOException {
         return userHandler.createUser(body);
     }
 

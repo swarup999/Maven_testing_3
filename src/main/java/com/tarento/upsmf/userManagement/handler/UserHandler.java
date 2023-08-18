@@ -33,12 +33,18 @@ public class UserHandler {
     @Autowired
     private KeycloakUserActivateDeActivate keycloakUserActivateDeActivate;
 
-    public ResponseEntity<JsonNode>  createUser(final JsonNode body) throws URISyntaxException, IOException {
+    public String createUser(final JsonNode body) throws URISyntaxException, IOException {
         logger.info("creating user with payload {} ", body.toPrettyString());
-        String respone = keycloakUserCreator.createUser(body);
-        logger.info("user created ? {}", respone);
-        ResponseEntity<JsonNode> user = userService.createUser(body);
-        return user;
+        String response = keycloakUserCreator.createUser(body);
+        logger.info("user created ? {}", response);
+        try {
+            ResponseEntity<JsonNode> user = userService.createUser(body);
+            logger.info("user created on ed {}",user);
+            user.toString();
+        } catch (Exception e){
+            logger.error("Error Occured",e);
+        }
+        return response;
     }
 
     public String updateUser(final JsonNode body) throws URISyntaxException, IOException {
