@@ -51,13 +51,13 @@ public class UserController {
         return userHandler.sendOTP(phoneNumber, name, otp);
     }
 
-    @PostMapping(value = "/keycloak/otp", produces = "application/json")
-    public ResponseEntity<String> generateOTP(@RequestParam String email) throws URISyntaxException {
+    @PostMapping(value = "/keycloak/otp", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<String> generateOTP(@RequestBody String email) throws URISyntaxException {
         return userHandler.generateOTP(email);
     }
 
-    @PostMapping(value = "/keycloak/login", produces = "application/json")
-    public ResponseEntity<String> login(@RequestParam final JsonNode body ) throws URISyntaxException {
+    @PostMapping(value = "/keycloak/login", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<String> login(@RequestBody JsonNode body ) throws URISyntaxException {
         return userHandler.login(body);
     }
 
