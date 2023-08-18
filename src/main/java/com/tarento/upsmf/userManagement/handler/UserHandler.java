@@ -100,13 +100,13 @@ public class UserHandler {
         return stringResponseEntity;
     }
 
-    public ResponseEntity<String> generateOTP(String email) throws URISyntaxException {
+    public ResponseEntity<String> generateOTP(String email) throws URISyntaxException, IOException {
         logger.info("generating otp to {} ", email);
         ResponseEntity<String> stringResponseEntity = userService.generateOTP(email);
         return stringResponseEntity;
     }
 
-    public ResponseEntity<String> login(final JsonNode body) throws URISyntaxException {
+    public ResponseEntity<String> login(final JsonNode body) throws URISyntaxException, IOException {
         logger.info("login called with payload {} ", body.toPrettyString());
         return userService.login(body);
     }

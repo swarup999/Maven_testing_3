@@ -1,6 +1,7 @@
 package com.tarento.upsmf.userManagement.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.tarento.upsmf.userManagement.utility.KeycloakTokenRetriever;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.net.*;
 
 @Component
@@ -25,6 +27,9 @@ public class UserService {
 
     @Autowired
     private Environment env;
+
+    @Autowired
+    private KeycloakTokenRetriever keycloakTokenRetriever;
 
     private static Environment environment;
     private String BASE_URL;
@@ -54,10 +59,11 @@ public class UserService {
         return headers;
     }
 
-    private HttpHeaders getHeaderForKeycloak(){
+    private HttpHeaders getHeaderForKeycloak() throws IOException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        String authToken = env.getProperty("authorizationToken");
+        JsonNode adminToken = keycloakTokenRetriever.getAdminToken();
+        String authToken = adminToken.get("access_token").asText();
         headers.add("Authorization","Bearer " + authToken);
         logger.info("Getting keycloak headers...{} ", headers);
         return headers;
@@ -143,20 +149,22 @@ public class UserService {
         return result;
     }
 
-    public ResponseEntity<String> generateOTP(String email) throws URISyntaxException {
+    public ResponseEntity<String> generateOTP(String email) throws URISyntaxException, IOException {
         logger.info("generate OTP for user...{} ", email);
         RestTemplate restTemplate = new RestTemplate();
         URI uri = new URI(KEYCLOAK_BASEURL + "/user/generateOtp");
+        logger.info("login user ...{} ", uri.toString());
         HttpHeaders headerForKeycloak = getHeaderForKeycloak();
         HttpEntity httpEntity = new HttpEntity(email, headerForKeycloak);
         ResponseEntity<String> result = restTemplate.postForEntity(uri,httpEntity,String.class);
         return result;
     }
 
-    public ResponseEntity<String> login(final JsonNode body) throws URISyntaxException {
+    public ResponseEntity<String> login(final JsonNode body) throws URISyntaxException, IOException {
         logger.info("login user ...{} ", body);
         RestTemplate restTemplate = new RestTemplate();
         URI uri = new URI(KEYCLOAK_BASEURL + "/user/login");
+        logger.info("login user ...{} ", uri.toString());
         HttpHeaders headerForKeycloak = getHeaderForKeycloak();
         HttpEntity httpEntity = new HttpEntity(body, headerForKeycloak);
         ResponseEntity<String> result = restTemplate.postForEntity(uri,httpEntity,String.class);
