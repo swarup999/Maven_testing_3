@@ -2,6 +2,7 @@ package com.tarento.upsmf.userManagement.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tarento.upsmf.userManagement.utility.KeycloakTokenRetriever;
+import com.tarento.upsmf.userManagement.utility.SunbirdRCKeycloakTokenRetriever;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
@@ -30,6 +31,9 @@ public class UserService {
 
     @Autowired
     private KeycloakTokenRetriever keycloakTokenRetriever;
+
+    @Autowired
+    private SunbirdRCKeycloakTokenRetriever sunbirdRCKeycloakTokenRetriever;
 
     private static Environment environment;
     private String BASE_URL;
@@ -62,7 +66,7 @@ public class UserService {
     private HttpHeaders getHeaderForKeycloak() throws IOException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        JsonNode adminToken = keycloakTokenRetriever.getAdminToken();
+        JsonNode adminToken = sunbirdRCKeycloakTokenRetriever.getAdminToken();
         String authToken = adminToken.get("access_token").asText();
         headers.add("Authorization","Bearer " + authToken);
         logger.info("Getting keycloak headers...{} ", headers);
