@@ -73,7 +73,9 @@ public class KeycloakUserCreator {
         httpPost.setEntity(entity);
 
         HttpResponse response = httpClient.execute(httpPost);
+        logger.info("Response from httpClient call : {}", response);
         String responseBody = EntityUtils.toString(response.getEntity());
+        logger.info("Response from keycloak Rest API call : {}", responseBody);
         if (response.getStatusLine().getStatusCode() == 201) {
             String password = ((ArrayNode)body.get("credentials")).get(0).get("value").asText();
             try {
