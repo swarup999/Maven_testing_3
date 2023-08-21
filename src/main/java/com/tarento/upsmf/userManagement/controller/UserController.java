@@ -2,6 +2,9 @@ package com.tarento.upsmf.userManagement.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tarento.upsmf.userManagement.handler.UserHandler;
+import com.tarento.upsmf.userManagement.model.Payment;
+import com.tarento.upsmf.userManagement.model.ResponseDto;
+import com.tarento.upsmf.userManagement.services.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +15,9 @@ import java.net.URISyntaxException;
 @RestController
 @RequestMapping(value = "/api/v1/user")
 public class UserController {
+
+    @Autowired
+    PaymentService paymentService;
 
     @Autowired
     private UserHandler userHandler;
@@ -59,6 +65,12 @@ public class UserController {
     @PostMapping(value = "/keycloak/login", consumes = "application/json", produces = "application/json")
     public ResponseEntity<String> login(@RequestBody JsonNode body ) throws URISyntaxException, IOException {
         return userHandler.login(body);
+    }
+
+    @PostMapping(value = "/payment")
+    public ResponseEntity<?> payment(@RequestBody Payment payment){
+        ResponseDto response = paymentService.makePayment(payment);
+        return new ResponseEntity<>(response, response.getResponseCode());
     }
 
 }
