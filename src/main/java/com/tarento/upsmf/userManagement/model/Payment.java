@@ -19,14 +19,14 @@ import java.util.List;
 @Table(name = "payment")
 public class Payment {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO )
     private Integer feeId;
 
     private String fullName;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "fee_id")
-    private List<Exam> exams;
+    //@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    //@JoinColumn(name = "fee_id")
+    //private List<Exam> exams;
 
     private Integer noOfExams;
     private Integer feeAmount;
