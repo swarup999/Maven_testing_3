@@ -85,7 +85,8 @@ public class KeycloakUserCreator {
             responseBody = location;
             try {
                 logger.info("syncing user {} with pwd {}",userName,password);
-                String strResponse = keycloakUserCredentialPersister.persistUserInfo(userName, password);
+                String email = body.get("email").asText();
+                String strResponse = keycloakUserCredentialPersister.persistUserInfo(email, password);
             }catch (Exception ex){
                 ex.printStackTrace();
             }
