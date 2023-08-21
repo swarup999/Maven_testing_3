@@ -55,7 +55,7 @@ public class SunbirdRCKeycloakTokenRetriever {
         ADMIN_TOKEN_SECRET = getPropertyValue("sunbirdRC.keycloak.adminToken.clientSecret");
         ADMIN_USERNAME = getPropertyValue("sunbirdRC.keycloak.adminToken.userName");
         ADMIN_CLIENTID = getPropertyValue("sunbirdRC.keycloak.adminToken.clientID");
-        ADMIN_PASSWORD = getPropertyValue("sunbirdRC.keycloak.adminToken.clientSecret");
+        ADMIN_PASSWORD = getPropertyValue("sunbirdRC.keycloak.adminToken.password");
     }
 
     public static String getPropertyValue(String property){
@@ -67,19 +67,22 @@ public class SunbirdRCKeycloakTokenRetriever {
         HttpClient httpClient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(tokenEndpoint);
 
-        List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("username", ADMIN_USERNAME));
-        params.add(new BasicNameValuePair("grant_type", "client_credentials"));
-        params.add(new BasicNameValuePair("client_id", ADMIN_CLIENTID));
-        params.add(new BasicNameValuePair("client_secret", ADMIN_TOKEN_SECRET));
+        String requestBody = "username=" + ADMIN_USERNAME +
+                "&password=" + ADMIN_PASSWORD +
+                "&grant_type=client_credentials" +
+                "&client_id=admin-cli" +
+                "&client_secret=" + ADMIN_TOKEN_SECRET;
 
-        httpPost.setEntity(new UrlEncodedFormEntity(params, StandardCharsets.UTF_8));
+        logger.info("Request body: {}", requestBody);
+        StringEntity entity = new StringEntity(requestBody);
+
+        httpPost.setEntity(entity);
         httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
         logger.info("headers {}",httpPost);
 
         org.apache.http.HttpResponse response = httpClient.execute(httpPost);
-        HttpEntity entity = response.getEntity();
-        String responseBody = EntityUtils.toString(entity, StandardCharsets.UTF_8);
+        HttpEntity httpEntity = response.getEntity();
+        String responseBody = EntityUtils.toString(httpEntity, StandardCharsets.UTF_8);
 
         if (response.getStatusLine().getStatusCode() == 200) {
             System.out.println("Access token obtained successfully.");

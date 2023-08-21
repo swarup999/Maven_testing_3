@@ -1,5 +1,6 @@
 package com.tarento.upsmf.userManagement.utility;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -29,6 +30,9 @@ public class KeycloakUserCredentialPersister {
     @Autowired
     private KeycloakUserActivateDeActivate keycloakUserActivateDeActivate;
 
+    @Autowired
+    private SunbirdRCKeycloakTokenRetriever sunbirdRCKeycloakTokenRetriever;
+
     private static Environment environment;
 
     private String REGISTRYENDPOINTSAVEUSERINFO;
@@ -46,12 +50,15 @@ public class KeycloakUserCredentialPersister {
         logger.info("saving user info to endpoint {}",REGISTRYENDPOINTSAVEUSERINFO);
         HttpClient httpClient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(REGISTRYENDPOINTSAVEUSERINFO);
+        JsonNode adminToken = sunbirdRCKeycloakTokenRetriever.getAdminToken();
+        String authToken = adminToken.get("access_token").asText();
         httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+        httpPost.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + authToken);
         String requestBody = "{" +
             "\"username\": " + "\"" + userName + "\"" + "," +
             "\"password\": " + "\"" + password + "\"" + "," +
         "}";
-        logger.info("paayload to save user info {}",requestBody);
+        logger.info("payload to save user info with body {} and header {}",requestBody,httpPost.getAllHeaders());
         StringEntity entity = new StringEntity(requestBody);
         httpPost.setEntity(entity);
         org.apache.http.HttpResponse response = httpClient.execute(httpPost);
