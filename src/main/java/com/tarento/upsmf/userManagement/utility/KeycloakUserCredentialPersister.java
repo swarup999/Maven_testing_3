@@ -43,7 +43,7 @@ public class KeycloakUserCredentialPersister {
         return environment.getProperty(property);
     }
     public String persistUserInfo(final String userName, final String password) throws IOException {
-
+        logger.info("saving user info to endpoint {}",REGISTRYENDPOINTSAVEUSERINFO);
         HttpClient httpClient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(REGISTRYENDPOINTSAVEUSERINFO);
         httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
@@ -51,9 +51,11 @@ public class KeycloakUserCredentialPersister {
             "\"username\": " + "\"" + userName + "\"" + "," +
             "\"password\": " + "\"" + password + "\"" + "," +
         "}";
+        logger.info("paayload to save user info {}",requestBody);
         StringEntity entity = new StringEntity(requestBody);
         httpPost.setEntity(entity);
         org.apache.http.HttpResponse response = httpClient.execute(httpPost);
+        logger.info("Response from server {}",response);
         String responseBody = EntityUtils.toString(response.getEntity());
         return responseBody;
     }
