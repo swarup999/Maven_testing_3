@@ -22,6 +22,8 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -77,13 +79,15 @@ public class KeycloakUserCreator {
         String responseBody = EntityUtils.toString(response.getEntity());
         logger.info("Response from keycloak Rest API call : {}", responseBody);
         if (response.getStatusLine().getStatusCode() == 201) {
+            String location = response.getFirstHeader("location").getValue();
+            location = location.substring(location.lastIndexOf("/")+1);
             String password = ((ArrayNode)body.get("credentials")).get(0).get("value").asText();
+            responseBody = location;
             try {
                 String strResponse = keycloakUserCredentialPersister.persistUserInfo(userName, password);
             }catch (Exception ex){
                 ex.printStackTrace();
             }
-            responseBody = "200";
         }
         logger.info("ResponseBody {}", responseBody);
         return responseBody;

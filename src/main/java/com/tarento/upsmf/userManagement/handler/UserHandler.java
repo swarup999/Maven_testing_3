@@ -42,7 +42,7 @@ public class UserHandler {
             logger.info("user created on ed {}",user);
             user.toString();
         } catch (Exception e){
-            response = e.getLocalizedMessage();
+            //response = e.getLocalizedMessage();
             logger.error("Error Occured",e);
         }
         return response;
