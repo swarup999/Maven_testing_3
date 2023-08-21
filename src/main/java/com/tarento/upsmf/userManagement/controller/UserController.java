@@ -37,12 +37,12 @@ public class UserController {
     }
 
     @PostMapping(value = "/activate", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<JsonNode> activateUser(@RequestBody final JsonNode body) throws URISyntaxException, IOException {
+    public String activateUser(@RequestBody final JsonNode body) throws URISyntaxException, IOException {
         return userHandler.activateUser(body);
     }
 
     @PostMapping(value = "/deactivate", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<JsonNode> deactivateUser(@RequestBody final JsonNode body) throws URISyntaxException, IOException {
+    public String deactivateUser(@RequestBody final JsonNode body) throws URISyntaxException, IOException {
         return userHandler.deactivateUser(body);
     }
 

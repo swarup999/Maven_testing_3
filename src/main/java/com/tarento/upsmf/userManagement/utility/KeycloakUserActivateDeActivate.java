@@ -2,6 +2,7 @@ package com.tarento.upsmf.userManagement.utility;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.http.HttpHeaders;
+import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
@@ -61,8 +62,9 @@ public class KeycloakUserActivateDeActivate {
         httpPut.setEntity(entity);
 
         org.apache.http.HttpResponse response = httpClient.execute(httpPut);
-        String responseBody = EntityUtils.toString(response.getEntity());
-        logger.info("Response {}", responseBody);
-        return requestBody;
+        StatusLine statusLine = response.getStatusLine();
+
+        String responseBody = statusLine.getStatusCode() + "  " + statusLine.getReasonPhrase();
+        return responseBody;
     }
 }

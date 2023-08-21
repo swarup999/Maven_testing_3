@@ -75,23 +75,29 @@ public class UserHandler {
         return users;
     }
 
-    public ResponseEntity<JsonNode>  activateUser(final JsonNode body) throws URISyntaxException, IOException {
+    public String activateUser(final JsonNode body) throws URISyntaxException, IOException {
         logger.info("activating user with payload {} ", body.toPrettyString());
         JsonNode request = body.get("request");
-        keycloakUserActivateDeActivate.activateDeactivatUser(request.get("userName").asText(), true);
-
-        ResponseEntity<JsonNode> jsonNodeResponseEntity = userService.activateUser(body);
-        return jsonNodeResponseEntity;
+        String response = keycloakUserActivateDeActivate.activateDeactivatUser(request.get("userName").asText(), true);
+        try {
+            ResponseEntity<JsonNode> jsonNodeResponseEntity = userService.activateUser(body);
+        }catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return response;
     }
 
-    public ResponseEntity<JsonNode>  deactivateUser(final JsonNode body) throws URISyntaxException, IOException {
+    public String  deactivateUser(final JsonNode body) throws URISyntaxException, IOException {
         logger.info("deactivating user with payload {} ", body.toPrettyString());
 
         JsonNode request = body.get("request");
-        keycloakUserActivateDeActivate.activateDeactivatUser(request.get("userName").asText(), false);
-
-        ResponseEntity<JsonNode> jsonNodeResponseEntity = userService.deactivateUser(body);
-        return jsonNodeResponseEntity;
+        String response = keycloakUserActivateDeActivate.activateDeactivatUser(request.get("userName").asText(), false);
+        try {
+            ResponseEntity<JsonNode> jsonNodeResponseEntity = userService.deactivateUser(body);
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return response;
     }
 
     public ResponseEntity<String>  sendOTP(String phoneNumber, String name, String otp) throws URISyntaxException {
