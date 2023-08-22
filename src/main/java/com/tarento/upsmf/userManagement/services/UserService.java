@@ -179,7 +179,7 @@ public class UserService {
         return result;
     }
 
-    public String paymentRedirect(Payment payment) throws URISyntaxException, IOException {
+    public ResponseEntity<String> paymentRedirect(Payment payment) throws URISyntaxException, IOException {
         return paymentService.makePayment(payment);
     }
 

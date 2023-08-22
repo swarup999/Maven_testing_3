@@ -1,7 +1,6 @@
 package com.tarento.upsmf.userManagement.handler;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.tarento.upsmf.userManagement.model.KeyCloakUserDTO;
 import com.tarento.upsmf.userManagement.model.Payment;
 import com.tarento.upsmf.userManagement.services.UserService;
 import com.tarento.upsmf.userManagement.utility.*;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.UUID;
 
 @Component
 public class UserHandler {
@@ -122,7 +120,9 @@ public class UserHandler {
         return request.get(key) != null ? request.get(key).asText() : defaultValue;
     }
 
-    public String paymentRedirect(Payment payment) throws URISyntaxException, IOException {
+    public ResponseEntity<String> paymentRedirect(String feeId, String fullName, String noOfExams, String feeAmount)
+            throws URISyntaxException, IOException {
+        Payment payment = Payment.builder().feeId(feeId).fullName(fullName).noOfExams(noOfExams).feeAmount(feeAmount).build();
         logger.info("payload from paymentRedirect {}",payment);
         return userService.paymentRedirect(payment);
     }

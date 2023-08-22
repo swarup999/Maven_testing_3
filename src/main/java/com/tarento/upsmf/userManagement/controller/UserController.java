@@ -2,19 +2,13 @@ package com.tarento.upsmf.userManagement.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tarento.upsmf.userManagement.handler.UserHandler;
-import com.tarento.upsmf.userManagement.model.Payment;
-import com.tarento.upsmf.userManagement.model.ResponseDto;
 import com.tarento.upsmf.userManagement.services.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/api/v1/user")
@@ -71,8 +65,9 @@ public class UserController {
         return userHandler.login(body);
     }
 
-    @PostMapping(value = "/payment")
-    public String paymentRedirect(Payment payment) throws URISyntaxException, IOException {
-        return userHandler.paymentRedirect(payment);
+    @GetMapping(value = "/payment")
+    public ResponseEntity<String> paymentRedirect(@RequestParam("feeId") String feeId, @RequestParam("fullName") String fullName, @RequestParam("noOfExams") String noOfExams,
+                                                  @RequestParam("feeAmount") String feeAmount) throws URISyntaxException, IOException {
+        return userHandler.paymentRedirect(feeId, fullName, noOfExams, feeAmount);
     }
 }
