@@ -120,4 +120,9 @@ public class UserHandler {
     private String getorDefault(final JsonNode request, final String key, final String defaultValue){
         return request.get(key) != null ? request.get(key).asText() : defaultValue;
     }
+
+    public String usrLogin(JsonNode body) throws IOException {
+        logger.info("login user with body {}",body);
+        return userService.usrLogin(body);
+    }
 }

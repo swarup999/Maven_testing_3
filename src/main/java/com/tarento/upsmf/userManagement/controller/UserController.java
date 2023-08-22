@@ -73,4 +73,9 @@ public class UserController {
         return new ResponseEntity<>(response, response.getResponseCode());
     }
 
+    @PostMapping(value = "/keycloak/usrlogin")
+    public String usrlogin(@RequestBody JsonNode body) throws IOException {
+        return userHandler.usrLogin(body);
+    }
+
 }

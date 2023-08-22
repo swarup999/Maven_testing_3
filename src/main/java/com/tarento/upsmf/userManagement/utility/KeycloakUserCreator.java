@@ -1,6 +1,7 @@
 package com.tarento.upsmf.userManagement.utility;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.http.Header;
@@ -45,6 +46,8 @@ public class KeycloakUserCreator {
 
     private String KEYCLOAK_USER_BASE_URL;
 
+    private ObjectMapper mapper = new ObjectMapper();
+
     @PostConstruct
     public void init(){
         environment = env;
@@ -87,8 +90,14 @@ public class KeycloakUserCreator {
                 logger.info("syncing user {} with pwd {}",userName,password);
                 String email = body.get("email").asText();
                 String strResponse = keycloakUserCredentialPersister.persistUserInfo(email, password);
+                JsonNode mailPayLoad = mapper.createObjectNode();
+                ((ObjectNode)mailPayLoad).put("firstName",body.get("firstName").asText());
+                ((ObjectNode)mailPayLoad).put("lastName",body.get("lastName").asText());
+                ((ObjectNode)mailPayLoad).put("email",body.get("email").asText());
+                ((ObjectNode)mailPayLoad).put("userId",location);
+                keycloakUserCredentialPersister.sendUserCreateMail(mailPayLoad);
             }catch (Exception ex){
-                ex.printStackTrace();
+                logger.error("error occured {}",ex);
             }
         }
         logger.info("ResponseBody {}", responseBody);
