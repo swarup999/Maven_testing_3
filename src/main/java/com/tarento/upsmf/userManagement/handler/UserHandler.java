@@ -123,8 +123,9 @@ public class UserHandler {
     public ResponseEntity<String> paymentRedirect(String feeId, String fullName, String noOfExams, String feeAmount)
             throws URISyntaxException, IOException {
         Payment payment = Payment.builder().feeId(feeId).fullName(fullName).noOfExams(noOfExams).feeAmount(feeAmount).build();
-        logger.info("payload from paymentRedirect {}",payment);
+        logger.info("payload from paymentRedirect {}", payment);
         return userService.paymentRedirect(payment);
+    }
 
     public String usrLogin(JsonNode body) throws IOException {
         logger.info("login user with body {}",body);
