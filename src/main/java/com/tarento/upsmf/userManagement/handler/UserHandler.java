@@ -125,5 +125,15 @@ public class UserHandler {
         Payment payment = Payment.builder().feeId(feeId).fullName(fullName).noOfExams(noOfExams).feeAmount(feeAmount).build();
         logger.info("payload from paymentRedirect {}",payment);
         return userService.paymentRedirect(payment);
+
+    public String usrLogin(JsonNode body) throws IOException {
+        logger.info("login user with body {}",body);
+        return userService.usrLogin(body);
     }
+
+    public String usrOTP(JsonNode body) throws IOException {
+        logger.info("OTP mail to user with body {}",body);
+        return userService.usrOTP(body);
+    }
+      
 }

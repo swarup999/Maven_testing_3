@@ -35,21 +35,30 @@ public class KeycloakUserCredentialPersister {
 
     private static Environment environment;
 
-    private String REGISTRYENDPOINTSAVEUSERINFO;
+    private String REGISTRY_ENDPOINT_SAVE_USERINFO;
+
+    private String OTP_MAIL_ENDPOINT;
+
+    private String USER_CREATE_MAIL_ENDPOINT;
+
+    private String USER_LOGIN;
 
     @PostConstruct
     public void init(){
         environment = env;
-        REGISTRYENDPOINTSAVEUSERINFO = getPropertyValue("registry.endpoint.save.userinfo");
+        REGISTRY_ENDPOINT_SAVE_USERINFO = getPropertyValue("registry.endpoint.save.userinfo");
+        OTP_MAIL_ENDPOINT = getPropertyValue("otp.mail.endpoint");
+        USER_CREATE_MAIL_ENDPOINT = getPropertyValue("user.create.mail.endpoint");
+        USER_LOGIN = getPropertyValue("user.login");
     }
 
     public static String getPropertyValue(String property){
         return environment.getProperty(property);
     }
     public String persistUserInfo(final String userName, final String password) throws IOException {
-        logger.info("saving user info to endpoint {}",REGISTRYENDPOINTSAVEUSERINFO);
+        logger.info("saving user info to endpoint {}",REGISTRY_ENDPOINT_SAVE_USERINFO);
         HttpClient httpClient = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost(REGISTRYENDPOINTSAVEUSERINFO);
+        HttpPost httpPost = new HttpPost(REGISTRY_ENDPOINT_SAVE_USERINFO);
         JsonNode adminToken = sunbirdRCKeycloakTokenRetriever.getAdminToken();
         String authToken = adminToken.get("access_token").asText();
         httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
@@ -66,4 +75,56 @@ public class KeycloakUserCredentialPersister {
         String responseBody = EntityUtils.toString(response.getEntity());
         return responseBody;
     }
+
+    public String sendOTPMail(JsonNode body) throws IOException {
+        logger.info("sending OTP to user email endpoint {} ",OTP_MAIL_ENDPOINT);
+        HttpClient httpClient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(OTP_MAIL_ENDPOINT);
+        JsonNode adminToken = sunbirdRCKeycloakTokenRetriever.getAdminToken();
+        String authToken = adminToken.get("access_token").asText();
+        httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+        httpPost.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + authToken);
+        logger.info("payload to send OTP mail to user with body {} and header {}", body, httpPost);
+        StringEntity entity = new StringEntity(body.toPrettyString());
+        httpPost.setEntity(entity);
+        org.apache.http.HttpResponse response = httpClient.execute(httpPost);
+        logger.info("Response from server {}",response);
+        String responseBody = EntityUtils.toString(response.getEntity());
+        return responseBody;
+    }
+
+    public String sendUserCreateMail(JsonNode body) throws IOException {
+        logger.info("sending user create successful mail to user endpoint {}. ",USER_CREATE_MAIL_ENDPOINT);
+        HttpClient httpClient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(USER_CREATE_MAIL_ENDPOINT);
+        JsonNode adminToken = sunbirdRCKeycloakTokenRetriever.getAdminToken();
+        String authToken = adminToken.get("access_token").asText();
+        httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+        httpPost.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + authToken);
+        logger.info("payload to send user create successful mail to user with body {} and header {}", body, httpPost);
+        StringEntity entity = new StringEntity(body.toPrettyString());
+        httpPost.setEntity(entity);
+        org.apache.http.HttpResponse response = httpClient.execute(httpPost);
+        logger.info("Response from server {}",response);
+        String responseBody = EntityUtils.toString(response.getEntity());
+        return responseBody;
+    }
+
+    public String usrLogin(JsonNode body) throws IOException {
+        logger.info("login user endpoint {}. ",USER_LOGIN);
+        HttpClient httpClient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(USER_LOGIN);
+        JsonNode adminToken = sunbirdRCKeycloakTokenRetriever.getAdminToken();
+        String authToken = adminToken.get("access_token").asText();
+        httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+        httpPost.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + authToken);
+        logger.info("payload login user with body {} and header {}", body, httpPost);
+        StringEntity entity = new StringEntity(body.toPrettyString());
+        httpPost.setEntity(entity);
+        org.apache.http.HttpResponse response = httpClient.execute(httpPost);
+        logger.info("Response from server {}",response);
+        String responseBody = EntityUtils.toString(response.getEntity());
+        return responseBody;
+    }
+
 }

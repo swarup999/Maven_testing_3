@@ -70,4 +70,15 @@ public class UserController {
                                                   @RequestParam("feeAmount") String feeAmount) throws URISyntaxException, IOException {
         return userHandler.paymentRedirect(feeId, fullName, noOfExams, feeAmount);
     }
+
+    @PostMapping(value = "/keycloak/usrlogin")
+    public String usrlogin(@RequestBody JsonNode body) throws IOException {
+        return userHandler.usrLogin(body);
+    }
+
+    @PostMapping(value = "/keycloak/usrOTP")
+    public String usrOTP(@RequestBody JsonNode body) throws IOException {
+        return userHandler.usrOTP(body);
+    }
+  
 }
