@@ -20,14 +20,8 @@ import java.util.List;
 public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO )
-    private Integer feeId;
-
+    private String feeId;
     private String fullName;
-
-    //@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    //@JoinColumn(name = "fee_id")
-    //private List<Exam> exams;
-
-    private Integer noOfExams;
-    private Integer feeAmount;
+    private String noOfExams;
+    private String feeAmount;
 }

@@ -1,6 +1,7 @@
 package com.tarento.upsmf.userManagement.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.tarento.upsmf.userManagement.model.Payment;
 import com.tarento.upsmf.userManagement.utility.KeycloakTokenRetriever;
 import com.tarento.upsmf.userManagement.utility.KeycloakUserCredentialPersister;
 import com.tarento.upsmf.userManagement.utility.SunbirdRCKeycloakTokenRetriever;
@@ -37,6 +38,8 @@ public class UserService {
     private SunbirdRCKeycloakTokenRetriever sunbirdRCKeycloakTokenRetriever;
 
     @Autowired
+    private PaymentService paymentService;
+
     private KeycloakUserCredentialPersister keycloakUserCredentialPersister;
 
     private static Environment environment;
@@ -179,6 +182,10 @@ public class UserService {
         return result;
     }
 
+    public ResponseEntity<String> paymentRedirect(Payment payment) throws URISyntaxException, IOException {
+        return paymentService.makePayment(payment);
+    }
+
     public String usrLogin(JsonNode body) throws IOException {
         logger.info("login user with body {}",body);
         return keycloakUserCredentialPersister.usrLogin(body);
@@ -188,6 +195,5 @@ public class UserService {
         logger.info("OTP mail to user with body {}",body);
         return keycloakUserCredentialPersister.sendOTPMail(body);
     }
-
 
 }
