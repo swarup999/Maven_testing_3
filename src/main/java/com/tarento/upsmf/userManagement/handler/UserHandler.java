@@ -2,6 +2,7 @@ package com.tarento.upsmf.userManagement.handler;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tarento.upsmf.userManagement.model.KeyCloakUserDTO;
+import com.tarento.upsmf.userManagement.model.Payment;
 import com.tarento.upsmf.userManagement.services.UserService;
 import com.tarento.upsmf.userManagement.utility.*;
 import org.slf4j.Logger;
@@ -119,5 +120,10 @@ public class UserHandler {
 
     private String getorDefault(final JsonNode request, final String key, final String defaultValue){
         return request.get(key) != null ? request.get(key).asText() : defaultValue;
+    }
+
+    public String paymentRedirect(Payment payment) throws URISyntaxException, IOException {
+        logger.info("payload from paymentRedirect {}",payment);
+        return userService.paymentRedirect(payment);
     }
 }

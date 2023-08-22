@@ -71,12 +71,8 @@ public class UserController {
         return userHandler.login(body);
     }
 
-    @GetMapping(value = "/payment")
-    public ResponseEntity<?> paymentRedirect(Payment payment){
-            //Print params here
-        HttpHeaders headers = new HttpHeaders();
-        String redirectUrl = paymentService.makePayment(payment);
-        headers.setLocation(URI.create(redirectUrl));
-        return new ResponseEntity<String>(null,headers,HttpStatus.PERMANENT_REDIRECT);
+    @PostMapping(value = "/payment")
+    public String paymentRedirect(Payment payment) throws URISyntaxException, IOException {
+        return userHandler.paymentRedirect(payment);
     }
 }

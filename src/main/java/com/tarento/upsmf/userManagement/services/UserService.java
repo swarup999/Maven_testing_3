@@ -1,6 +1,7 @@
 package com.tarento.upsmf.userManagement.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.tarento.upsmf.userManagement.model.Payment;
 import com.tarento.upsmf.userManagement.utility.KeycloakTokenRetriever;
 import com.tarento.upsmf.userManagement.utility.SunbirdRCKeycloakTokenRetriever;
 import org.apache.http.client.HttpClient;
@@ -34,6 +35,9 @@ public class UserService {
 
     @Autowired
     private SunbirdRCKeycloakTokenRetriever sunbirdRCKeycloakTokenRetriever;
+
+    @Autowired
+    private PaymentService paymentService;
 
     private static Environment environment;
     private String BASE_URL;
@@ -174,4 +178,9 @@ public class UserService {
         ResponseEntity<String> result = restTemplate.postForEntity(uri,httpEntity,String.class);
         return result;
     }
+
+    public String paymentRedirect(Payment payment) throws URISyntaxException, IOException {
+        return paymentService.makePayment(payment);
+    }
+
 }
