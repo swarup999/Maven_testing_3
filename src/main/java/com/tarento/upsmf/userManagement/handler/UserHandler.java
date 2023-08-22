@@ -125,4 +125,9 @@ public class UserHandler {
         logger.info("login user with body {}",body);
         return userService.usrLogin(body);
     }
+
+    public String usrOTP(JsonNode body) throws IOException {
+        logger.info("OTP mail to user with body {}",body);
+        return userService.usrOTP(body);
+    }
 }

@@ -184,5 +184,10 @@ public class UserService {
         return keycloakUserCredentialPersister.usrLogin(body);
     }
 
+    public String usrOTP(JsonNode body) throws IOException {
+        logger.info("OTP mail to user with body {}",body);
+        return keycloakUserCredentialPersister.sendOTPMail(body);
+    }
+
 
 }

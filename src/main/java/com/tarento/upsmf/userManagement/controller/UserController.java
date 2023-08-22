@@ -78,4 +78,9 @@ public class UserController {
         return userHandler.usrLogin(body);
     }
 
+    @PostMapping(value = "/keycloak/usrOTP")
+    public String usrOTP(@RequestBody JsonNode body) throws IOException {
+        return userHandler.usrOTP(body);
+    }
+
 }
