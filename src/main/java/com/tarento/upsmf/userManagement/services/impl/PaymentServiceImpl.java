@@ -14,31 +14,20 @@ public class PaymentServiceImpl implements PaymentService {
     @Autowired
     PaymentRepository paymentRepository;
 //    @Override
-    public ResponseDto makePayment(Payment payment) {
+    public String makePayment(Payment payment) {
+        //read params
+         System.out.println(payment);
+        //check status
 
-        ResponseDto response = new ResponseDto("api.payment.make");
-        // Calculate noOfExams based on the number of selected options
-        //int noOfExams = payment.getExams().size();
-        // Calculate the fee amount based on noOfExams and exam fee amount (replace with actual fee calculation)
-        int examFeeAmount = 100; // Example exam fee amount
-        int feeAmount = calculateFee(10, examFeeAmount);
-        // Set the calculated values in the FeeManage object
-        payment.setNoOfExams(10);
-        payment.setFeeAmount(feeAmount);
-        // Save the FeeManage object
-        try {
-            Payment result = paymentRepository.save(payment);
-            response.put("message", "Success");
-            response.put("response", "Created.");
-            response.setResponseCode(HttpStatus.OK);
-        } catch (Exception e) {
-            response.put("message", "Error saving fee details");
-            response.put("response", "Failed to create a message");
-            response.setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return response;
-    }
-    public Integer calculateFee(Integer noOfExams, Integer examFeeAmount) {
-        return noOfExams * examFeeAmount;
+        //if valid
+
+        //save transaction details with success
+        //redirect to success page with success params - transaction id, amount,
+        //return "https://applicant.upsmfac.org?resp=success&transactionId{}=&amount={}";
+        //if invalid
+//        save transactions details with error
+        //redirect to error page with error params - transaction id, error code , amount
+        return "https://applicant.upsmfac.org?resp=fail&transactionId{}=&amount={}";
+
     }
 }

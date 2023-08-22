@@ -7,10 +7,14 @@ import com.tarento.upsmf.userManagement.model.ResponseDto;
 import com.tarento.upsmf.userManagement.services.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/api/v1/user")
@@ -67,10 +71,12 @@ public class UserController {
         return userHandler.login(body);
     }
 
-    @PostMapping(value = "/payment")
-    public ResponseEntity<?> payment(@RequestBody Payment payment){
-        ResponseDto response = paymentService.makePayment(payment);
-        return new ResponseEntity<>(response, response.getResponseCode());
+    @GetMapping(value = "/payment")
+    public ResponseEntity<?> paymentRedirect(Payment payment){
+            //Print params here
+        HttpHeaders headers = new HttpHeaders();
+        String redirectUrl = paymentService.makePayment(payment);
+        headers.setLocation(URI.create(redirectUrl));
+        return new ResponseEntity<String>(null,headers,HttpStatus.PERMANENT_REDIRECT);
     }
-
 }

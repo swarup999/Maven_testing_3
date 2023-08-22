@@ -5,7 +5,7 @@ import com.tarento.upsmf.userManagement.model.ResponseDto;
 
 public interface PaymentService {
 
-    public ResponseDto makePayment(Payment payment);
+    public String makePayment(Payment payment);
 
     /*@Autowired
     PaymentRepository paymentRepository;
