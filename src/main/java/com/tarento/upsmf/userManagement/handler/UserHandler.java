@@ -120,9 +120,12 @@ public class UserHandler {
         return request.get(key) != null ? request.get(key).asText() : defaultValue;
     }
 
-    public ResponseEntity<String> paymentRedirect(String feeId, String fullName, String noOfExams, String feeAmount)
+    public ResponseEntity<String> paymentRedirect(JsonNode body)
             throws URISyntaxException, IOException {
-        Payment payment = Payment.builder().feeId(feeId).fullName(fullName).noOfExams(noOfExams).feeAmount(feeAmount).build();
+        Payment payment = Payment.builder().feeId(body.get("feeId").asText())
+                .fullName(body.get("fullName").asText())
+                .noOfExams(body.get("noOfExams").asText())
+                .feeAmount(body.get("feeAmount").asText()).build();
         logger.info("payload from paymentRedirect {}", payment);
         return userService.paymentRedirect(payment);
     }

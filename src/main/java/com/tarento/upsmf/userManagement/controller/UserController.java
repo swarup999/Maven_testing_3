@@ -65,10 +65,9 @@ public class UserController {
         return userHandler.login(body);
     }
 
-    @GetMapping(value = "/payment")
-    public ResponseEntity<String> paymentRedirect(@RequestParam("feeId") String feeId, @RequestParam("fullName") String fullName, @RequestParam("noOfExams") String noOfExams,
-                                                  @RequestParam("feeAmount") String feeAmount) throws URISyntaxException, IOException {
-        return userHandler.paymentRedirect(feeId, fullName, noOfExams, feeAmount);
+    @PostMapping(value = "/payment")
+    public ResponseEntity<String> paymentRedirect(@RequestBody JsonNode body) throws URISyntaxException, IOException {
+        return userHandler.paymentRedirect(body);
     }
 
     @PostMapping(value = "/keycloak/usrlogin")
