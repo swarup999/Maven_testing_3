@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/api/v1/user")
@@ -66,8 +67,8 @@ public class UserController {
     }
 
     @PostMapping(value = "/payment")
-    public ResponseEntity<String> paymentRedirect(@RequestBody JsonNode body) throws URISyntaxException, IOException {
-        return userHandler.paymentRedirect(body);
+    public ResponseEntity<String> paymentRedirect(@RequestBody Map<String, String> requestData) throws URISyntaxException, IOException {
+        return userHandler.paymentRedirect(requestData);
     }
 
     @PostMapping(value = "/keycloak/usrlogin")

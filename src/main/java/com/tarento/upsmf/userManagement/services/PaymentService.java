@@ -6,9 +6,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Map;
 
 
 @Service
 public interface PaymentService {
-    public ResponseEntity<String> makePayment(Payment payment) throws URISyntaxException, IOException;
+    public ResponseEntity<String> makePayment(Map<String, String> requestData) throws URISyntaxException, IOException;
 }

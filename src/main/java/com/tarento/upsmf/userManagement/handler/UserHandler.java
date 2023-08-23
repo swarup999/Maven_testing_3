@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Map;
 
 @Component
 public class UserHandler {
@@ -120,14 +121,10 @@ public class UserHandler {
         return request.get(key) != null ? request.get(key).asText() : defaultValue;
     }
 
-    public ResponseEntity<String> paymentRedirect(JsonNode body)
+    public ResponseEntity<String> paymentRedirect(Map<String, String> requestData)
             throws URISyntaxException, IOException {
-        Payment payment = Payment.builder().feeId(body.get("feeId").asText())
-                .fullName(body.get("fullName").asText())
-                .noOfExams(body.get("noOfExams").asText())
-                .feeAmount(body.get("feeAmount").asText()).build();
-        logger.info("payload from paymentRedirect {}", payment);
-        return userService.paymentRedirect(payment);
+        logger.info("payload from paymentRedirect {}", requestData);
+        return userService.paymentRedirect(requestData);
     }
 
     public String usrLogin(JsonNode body) throws IOException {

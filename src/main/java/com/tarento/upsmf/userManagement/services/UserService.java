@@ -21,6 +21,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.*;
+import java.util.Map;
 
 @Component
 @PropertySource({ "classpath:application.properties" })
@@ -182,8 +183,8 @@ public class UserService {
         return result;
     }
 
-    public ResponseEntity<String> paymentRedirect(Payment payment) throws URISyntaxException, IOException {
-        return paymentService.makePayment(payment);
+    public ResponseEntity<String> paymentRedirect(Map<String, String> requestData) throws URISyntaxException, IOException {
+        return paymentService.makePayment(requestData);
     }
 
     public String usrLogin(JsonNode body) throws IOException {
