@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.tarento.upsmf.userManagement.handler.UserHandler;
 import com.tarento.upsmf.userManagement.services.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,7 +67,7 @@ public class UserController {
         return userHandler.login(body);
     }
 
-    @PostMapping(value = "/payment")
+    @PostMapping(value = "/payment", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<String> paymentRedirect(@RequestBody Map<String, String> requestData) throws URISyntaxException, IOException {
         return userHandler.paymentRedirect(requestData);
     }
