@@ -41,6 +41,7 @@ public class UserService {
     @Autowired
     private PaymentService paymentService;
 
+    @Autowired
     private KeycloakUserCredentialPersister keycloakUserCredentialPersister;
 
     private static Environment environment;
