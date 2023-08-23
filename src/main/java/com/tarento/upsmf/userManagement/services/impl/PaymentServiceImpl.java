@@ -59,8 +59,8 @@ public class PaymentServiceImpl implements PaymentService {
         logger.info("payment details...{} ", requestData);
         org.springframework.http.HttpHeaders httpHeaders = new org.springframework.http.HttpHeaders();
         String responseString = "";
-        if( (requestData != null ) && (requestData.get("Response_Code")!= null)
-                && requestData.get("Response_Code").equals("E000")) {
+        if( (requestData != null ) && (requestData.get("Response Code")!= null)
+                && requestData.get("Response Code").equals("E000")) {
             responseString = PAYMENT_GATEWAY_ENDPOINT+ "?resp=success";
             logger.info("Payment is successful.");
         } else {
