@@ -67,8 +67,8 @@ public class UserController {
         return userHandler.login(body);
     }
 
-    @PostMapping(value = "/payment", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<String> paymentRedirect(@RequestBody Map<String, String> requestData) throws URISyntaxException, IOException {
+    @PostMapping(value = "/payment", consumes = {"*/*"})
+    public ResponseEntity<String> paymentRedirect(@RequestParam Map<String, String> requestData) throws URISyntaxException, IOException {
         return userHandler.paymentRedirect(requestData);
     }
 
