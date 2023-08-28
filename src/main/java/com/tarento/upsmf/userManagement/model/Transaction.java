@@ -41,5 +41,6 @@ public class Transaction {
     private String optionalFields;
     private String rsv;
     private String module;
+    private String transaction_status;
 
 }

@@ -77,58 +77,65 @@ public class PaymentServiceImpl implements PaymentService {
             } else if (strings.contains("affiliation")) {
                 strEndPoint = AFFILIATION_PAYMENT_GATEWAY_ENDPOINT;
             }
-            String responseString = "";
+            String responseString = "", transaction_status = "";
             if ((requestData != null) && (requestData.get("Response Code") != null)
                     && requestData.get("Response Code").equals("E000")) {
                 responseString = strEndPoint + "?resp=success";
+                transaction_status = "success";
                 logger.info("Payment is successful.");
-                /**
-                 * save to postgresDB
-                 */
-                String date = requestData.get("Transaction Date");
-                DateFormat format = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
-                Date transactionDate = null;
-                try {
-                    transactionDate = format.parse(date);
-                } catch (ParseException e) {
-                    throw new RuntimeException(e);
-                }
-
-                Long id = Long.valueOf(requestData.get("ID"));
-                Double transactionAmount = Double.valueOf(requestData.get("Transaction Amount"));
-                String paymentMode = requestData.get("Payment Mode");
-                String RS = requestData.get("RS");
-                String RSV = requestData.get("RSV");
-                String TDR = requestData.get("TDR");
-                String interchangeValue = requestData.get("Interchange Value");
-                Double processingFeeAmount = Double.valueOf(requestData.get("Processing Fee Amount"));
-                Double totalAmount = Double.valueOf(requestData.get("Total Amount"));
-                String TPS = requestData.get("TPS");
-                Double serviceTaxAmount = Double.valueOf(requestData.get("Service Tax Amount"));
-                String optionalFields = requestData.get("optional fields");
-                String module = requestData.get("module");
-                String referenceNo = requestData.get("ReferenceNo");
-                Integer subMerchantId = Integer.valueOf(requestData.get("SubMerchantId"));
-                String uniqueRefNumber = requestData.get("Unique Ref Number");
-                String responseCode = requestData.get("Response Code");
-                Transaction transaction = Transaction.builder().transactionDate(transactionDate)
-                        .transactionAmount(transactionAmount).paymentMode(paymentMode).rs(RS).rsv(RSV).tdr(TDR)
-                        .entityId(id).interchangeValue(interchangeValue).processingFeeAmount(processingFeeAmount)
-                        .totalAmount(totalAmount).tps(TPS).serviceTaxAmount(serviceTaxAmount).mandatoryFields(mandatoryFields)
-                        .optionalFields(optionalFields).module(module).referenceNo(referenceNo).subMerchantId(subMerchantId)
-                        .uniqueRefNumber(uniqueRefNumber).responseCode(responseCode).build();
-                transaction.setModule(strEndPoint);
-                logger.info("Record to be saved {}",transaction);
-                repository.save(transaction);
+                logger.info("Record saved to DB.");
             } else {
                 responseString = strEndPoint + "?resp=failure";
+                transaction_status = "failed.";
                 logger.info("Payment failed.");
             }
-            logger.info("responseString details...{} ", responseString);
+            logger.info("creating transaction.");
+            Transaction transaction = getTransaction(requestData, strEndPoint, transaction_status);
+            repository.save(transaction);
+            logger.info("Transaction {} saved. ResponseString details...{} ", transaction, responseString);
             httpHeaders.setLocation(URI.create(responseString));
             return new ResponseEntity<String>(null, httpHeaders, HttpStatus.FOUND);
         }
         return new ResponseEntity<String>(null, httpHeaders, HttpStatus.NOT_FOUND);
+    }
+
+    private Transaction getTransaction(final Map<String, String> requestData,  final String strEndPoint, final String transaction_status) {
+        Long id = Long.valueOf(requestData.get("ID"));
+        Double transactionAmount = Double.valueOf(requestData.get("Transaction Amount"));
+        String paymentMode = requestData.get("Payment Mode");
+        String RS = requestData.get("RS");
+        String RSV = requestData.get("RSV");
+        String TDR = requestData.get("TDR");
+        String interchangeValue = requestData.get("Interchange Value");
+        Double processingFeeAmount = Double.valueOf(requestData.get("Processing Fee Amount"));
+        Double totalAmount = Double.valueOf(requestData.get("Total Amount"));
+        String TPS = requestData.get("TPS");
+        Double serviceTaxAmount = Double.valueOf(requestData.get("Service Tax Amount"));
+        String optionalFields = requestData.get("optional fields");
+        String module = requestData.get("module");
+        String referenceNo = requestData.get("ReferenceNo");
+        Integer subMerchantId = Integer.valueOf(requestData.get("SubMerchantId"));
+        String uniqueRefNumber = requestData.get("Unique Ref Number");
+        String responseCode = requestData.get("Response Code");
+
+        String date = requestData.get("Transaction Date");
+        DateFormat format = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+        Date transactionDate = null;
+        try {
+            transactionDate = format.parse(date);
+        } catch (ParseException e) {
+            logger.error("parsing date failed.",e);
+        }
+        String mandatoryFields = requestData.get("mandatory fields");
+        Transaction transaction = Transaction.builder().transactionDate(transactionDate)
+                .transactionAmount(transactionAmount).paymentMode(paymentMode).rs(RS).rsv(RSV).tdr(TDR)
+                .entityId(id).interchangeValue(interchangeValue).processingFeeAmount(processingFeeAmount)
+                .totalAmount(totalAmount).tps(TPS).serviceTaxAmount(serviceTaxAmount).mandatoryFields(mandatoryFields)
+                .optionalFields(optionalFields).module(module).referenceNo(referenceNo).subMerchantId(subMerchantId)
+                .uniqueRefNumber(uniqueRefNumber).responseCode(responseCode).transaction_status(transaction_status).build();
+        transaction.setModule(strEndPoint);
+        logger.info("Record to be saved {}",transaction);
+        return transaction;
     }
 
     private String sha512Hash(String input) {
