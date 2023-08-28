@@ -23,7 +23,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @Service
 @PropertySource({ "classpath:application.properties" })
@@ -39,14 +42,16 @@ public class PaymentServiceImpl implements PaymentService {
     @Autowired
     PaymentRepository paymentRepository;
 
-    private String PAYMENT_GATEWAY_ENDPOINT;
+    private String REGISTRATION_PAYMENT_GATEWAY_ENDPOINT;
+    private String AFFILIATION_PAYMENT_GATEWAY_ENDPOINT;
 
     private String AES_KEY_FOR_PAYMENT_SUCCESS;
 
     @PostConstruct
     public void init(){
         environment = env;
-        PAYMENT_GATEWAY_ENDPOINT = getPropertyValue("paymentGatewayEndPoint");
+        REGISTRATION_PAYMENT_GATEWAY_ENDPOINT = getPropertyValue("registration_payment_Gateway_EndPoint");
+        AFFILIATION_PAYMENT_GATEWAY_ENDPOINT = getPropertyValue("affiliation_payment_Gateway_EndPoint");
         AES_KEY_FOR_PAYMENT_SUCCESS = getPropertyValue("aes_key_for_payment_success");
     }
 
@@ -58,46 +63,31 @@ public class PaymentServiceImpl implements PaymentService {
     public ResponseEntity<String> makePayment(Map<String, String> requestData) {
         logger.info("payment details...{} ", requestData);
         org.springframework.http.HttpHeaders httpHeaders = new org.springframework.http.HttpHeaders();
-        String responseString = "";
-        if( (requestData != null ) && (requestData.get("Response Code")!= null)
-                && requestData.get("Response Code").equals("E000")) {
-            responseString = PAYMENT_GATEWAY_ENDPOINT+ "?resp=success";
-            logger.info("Payment is successful.");
-        } else {
-            responseString = PAYMENT_GATEWAY_ENDPOINT+ "?resp=failure";
-            logger.info("Payment failed.");
-        }
-        httpHeaders.setLocation(URI.create(responseString));
-        return new ResponseEntity<String>(null,httpHeaders, HttpStatus.FOUND);
-        /*if( (requestData != null) &&
-                (requestData.get("Total_Amount") != null ) &&
-                (requestData.containsKey("Total_Amount") &&
-                        (requestData.get("Response_Code")!= null) &&
-                        requestData.get("Response_Code").equals("E000"))) {
-
-
-            // Process payment success logic
-            String verificationKey = requestData.get("ID") + "|" +
-                    requestData.get("Response_Code") + "|" +
-                    requestData.get("Unique_Ref_Number") + "|" +
-                    requestData.get("Service_Tax_Amount") + "|" +
-                    requestData.get("Processing_Fee_Amount") + "|" +
-                    requestData.get("Total_Amount") + "|" +
-                    requestData.get("Transaction_Amount") + "|" +
-                    requestData.get("Transaction_Date") + "|" +
-                    requestData.get("Interchange_Value") + "|" +
-                    requestData.get("TDR") + "|" +
-                    requestData.get("Payment_Mode") + "|" +
-                    requestData.get("SubMerchantId") + "|" +
-                    requestData.get("ReferenceNo") + "|" +
-                    requestData.get("TPS") + "|" +
-                    AES_KEY_FOR_PAYMENT_SUCCESS;
-//            String encryptedMessage = sha512Hash(verificationKey);
-
-             // save these attributes to DB
-            httpHeaders.setLocation(URI.create(PAYMENT_GATEWAY_ENDPOINT+ "?resp=success"));
+        String mandatoryFields = requestData.get("mandatoryFields");
+        logger.info("mandatoryFields details...{} ", mandatoryFields);
+        if(mandatoryFields != null && !mandatoryFields.isEmpty()) {
+            String[] split = mandatoryFields.split(Pattern.quote("|"));
+            List<String> strings = Arrays.asList(split);
+            String strEndPoint = "";
+            if (strings.contains("registration")) {
+                strEndPoint = REGISTRATION_PAYMENT_GATEWAY_ENDPOINT;
+            } else if (strings.contains("registration")) {
+                strEndPoint = AFFILIATION_PAYMENT_GATEWAY_ENDPOINT;
+            }
+            String responseString = "";
+            if ((requestData != null) && (requestData.get("Response Code") != null)
+                    && requestData.get("Response Code").equals("E000")) {
+                responseString = strEndPoint + "?resp=success";
+                logger.info("Payment is successful.");
             } else {
-            httpHeaders.setLocation(URI.create(PAYMENT_GATEWAY_ENDPOINT+ "?resp=failure"));*/
+                responseString = strEndPoint + "?resp=failure";
+                logger.info("Payment failed.");
+            }
+            logger.info("responseString details...{} ", responseString);
+            httpHeaders.setLocation(URI.create(responseString));
+            return new ResponseEntity<String>(null, httpHeaders, HttpStatus.FOUND);
+        }
+        return new ResponseEntity<String>(null, httpHeaders, HttpStatus.NOT_FOUND);
     }
 
     private String sha512Hash(String input) {
