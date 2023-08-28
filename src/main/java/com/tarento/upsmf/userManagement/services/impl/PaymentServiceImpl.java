@@ -63,8 +63,8 @@ public class PaymentServiceImpl implements PaymentService {
     public ResponseEntity<String> makePayment(Map<String, String> requestData) {
         logger.info("payment details...{} ", requestData);
         org.springframework.http.HttpHeaders httpHeaders = new org.springframework.http.HttpHeaders();
-        String mandatoryFields = requestData.get("mandatoryFields");
-        logger.info("mandatoryFields details...{} ", mandatoryFields);
+        String mandatoryFields = requestData.get("mandatory fields");
+        logger.info("mandatory fields details...{} ", mandatoryFields);
         if(mandatoryFields != null && !mandatoryFields.isEmpty()) {
             String[] split = mandatoryFields.split(Pattern.quote("|"));
             List<String> strings = Arrays.asList(split);
