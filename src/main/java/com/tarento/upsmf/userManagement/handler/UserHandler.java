@@ -64,14 +64,16 @@ public class UserHandler {
 
     public String userDetails(final JsonNode body) throws IOException {
         JsonNode request = body.get("request");
-        String userName = keycloakUserGetter.findUser(request.get("userName").asText());
+        String userName = keycloakUserGetter.findUser(request.get("userName").asText(),0,0);
         return userName;
     }
 
 
     public String listUser(final JsonNode body) throws URISyntaxException, IOException {
         logger.info("creating user with payload {} ", body.toPrettyString());
-        String users = keycloakUserGetter.findUser(null);
+        int offset = body.get("offset").asInt();
+        int size = body.get("size").asInt();
+        String users = keycloakUserGetter.findUser(null,offset,size);
         return users;
     }
 

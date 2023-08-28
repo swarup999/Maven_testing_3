@@ -41,13 +41,17 @@ public class KeycloakUserGetter {
     public static String getPropertyValue(String property){
         return environment.getProperty(property);
     }
-    public String findUser(final String userID) throws IOException {
+    public String findUser(final String userID, final int offset, final int size) throws IOException {
         String userEndpoint = KEYCLOAK_USER_BASE_URL;
         logger.info("userEndpoint: " ,userEndpoint);
         if(userID != null ) {
             userEndpoint = userEndpoint + "/" + userID;
+        } else {
+            String parameter = "?first=%s&max=%s";
+            parameter = String.format(parameter,offset,size);
+            userEndpoint = userEndpoint + parameter;
         }
-        logger.info("userEndpoint after adding userId : " ,userEndpoint);
+        logger.info("userEndpoint {} after adding userId : " ,userEndpoint);
         JsonNode adminToken = keycloakTokenRetriever.getAdminToken();
         logger.info("adminToken: " ,adminToken);
         String accessToken = adminToken.get("access_token").asText();
