@@ -1,7 +1,9 @@
 package com.tarento.upsmf.userManagement.services.impl;
 
 import com.tarento.upsmf.userManagement.model.Payment;
+import com.tarento.upsmf.userManagement.model.Transaction;
 import com.tarento.upsmf.userManagement.repository.PaymentRepository;
+import com.tarento.upsmf.userManagement.repository.TransactionRepository;
 import com.tarento.upsmf.userManagement.services.PaymentService;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -23,9 +25,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.regex.Pattern;
 
 @Service
@@ -40,7 +43,7 @@ public class PaymentServiceImpl implements PaymentService {
     private static Environment environment;
 
     @Autowired
-    PaymentRepository paymentRepository;
+    TransactionRepository repository;
 
     private String REGISTRATION_PAYMENT_GATEWAY_ENDPOINT;
     private String AFFILIATION_PAYMENT_GATEWAY_ENDPOINT;
@@ -79,13 +82,48 @@ public class PaymentServiceImpl implements PaymentService {
                     && requestData.get("Response Code").equals("E000")) {
                 responseString = strEndPoint + "?resp=success";
                 logger.info("Payment is successful.");
+                /**
+                 * save to postgresDB
+                 */
+                String date = requestData.get("Transaction Date");
+                DateFormat format = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+                Date transactionDate = null;
+                try {
+                    transactionDate = format.parse(date);
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
+
+                Long id = Long.valueOf(requestData.get("ID"));
+                Double transactionAmount = Double.valueOf(requestData.get("Transaction Amount"));
+                String paymentMode = requestData.get("Payment Mode");
+                String RS = requestData.get("RS");
+                String RSV = requestData.get("RSV");
+                String TDR = requestData.get("TDR");
+                String interchangeValue = requestData.get("Interchange Value");
+                Double processingFeeAmount = Double.valueOf(requestData.get("Processing Fee Amount"));
+                Double totalAmount = Double.valueOf(requestData.get("Total Amount"));
+                String TPS = requestData.get("TPS");
+                Double serviceTaxAmount = Double.valueOf(requestData.get("Service Tax Amount"));
+                String optionalFields = requestData.get("optional fields");
+                String module = requestData.get("module");
+                String referenceNo = requestData.get("ReferenceNo");
+                Integer subMerchantId = Integer.valueOf(requestData.get("SubMerchantId"));
+                String uniqueRefNumber = requestData.get("Unique Ref Number");
+                String responseCode = requestData.get("Response Code");
+                Transaction transaction = Transaction.builder().transactionDate(transactionDate)
+                        .transactionAmount(transactionAmount).paymentMode(paymentMode).rs(RS).rsv(RSV).tdr(TDR)
+                        .entityId(id).interchangeValue(interchangeValue).processingFeeAmount(processingFeeAmount)
+                        .totalAmount(totalAmount).tps(TPS).serviceTaxAmount(serviceTaxAmount).mandatoryFields(mandatoryFields)
+                        .optionalFields(optionalFields).module(module).referenceNo(referenceNo).subMerchantId(subMerchantId)
+                        .uniqueRefNumber(uniqueRefNumber).responseCode(responseCode).build();
+                transaction.setModule(strEndPoint);
+                logger.info("Record to be saved {}",transaction);
+                repository.save(transaction);
             } else {
                 responseString = strEndPoint + "?resp=failure";
                 logger.info("Payment failed.");
             }
-            /**
-             * save to postgresDB
-             */
             logger.info("responseString details...{} ", responseString);
             httpHeaders.setLocation(URI.create(responseString));
             return new ResponseEntity<String>(null, httpHeaders, HttpStatus.FOUND);
