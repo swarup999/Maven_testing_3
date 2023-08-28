@@ -71,7 +71,7 @@ public class PaymentServiceImpl implements PaymentService {
             String strEndPoint = "";
             if (strings.contains("registration")) {
                 strEndPoint = REGISTRATION_PAYMENT_GATEWAY_ENDPOINT;
-            } else if (strings.contains("registration")) {
+            } else if (strings.contains("affiliation")) {
                 strEndPoint = AFFILIATION_PAYMENT_GATEWAY_ENDPOINT;
             }
             String responseString = "";
@@ -83,6 +83,9 @@ public class PaymentServiceImpl implements PaymentService {
                 responseString = strEndPoint + "?resp=failure";
                 logger.info("Payment failed.");
             }
+            /**
+             * save to postgresDB
+             */
             logger.info("responseString details...{} ", responseString);
             httpHeaders.setLocation(URI.create(responseString));
             return new ResponseEntity<String>(null, httpHeaders, HttpStatus.FOUND);
