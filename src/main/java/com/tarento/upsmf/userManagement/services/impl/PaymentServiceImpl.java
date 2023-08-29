@@ -78,14 +78,15 @@ public class PaymentServiceImpl implements PaymentService {
                 strEndPoint = AFFILIATION_PAYMENT_GATEWAY_ENDPOINT;
             }
             String responseString = "", transaction_status = "";
+            String transactionDetails = getTransactionDetails(requestData);
             if ((requestData != null) && (requestData.get("Response Code") != null)
                     && requestData.get("Response Code").equals("E000")) {
-                responseString = strEndPoint + "?resp=success";
+                responseString = strEndPoint + "?resp=success" + transactionDetails;
                 transaction_status = "success";
                 logger.info("Payment is successful.");
                 logger.info("Record saved to DB.");
             } else {
-                responseString = strEndPoint + "?resp=failure";
+                responseString = strEndPoint + "?resp=failure" + transactionDetails;
                 transaction_status = "failed.";
                 logger.info("Payment failed.");
             }
@@ -97,6 +98,14 @@ public class PaymentServiceImpl implements PaymentService {
             return new ResponseEntity<String>(null, httpHeaders, HttpStatus.FOUND);
         }
         return new ResponseEntity<String>(null, httpHeaders, HttpStatus.NOT_FOUND);
+    }
+
+    private String getTransactionDetails(Map<String, String> requestData) {
+        String transactionAmount = requestData.get("Transaction Amount") != null ? requestData.get("Transaction Amount") : "";
+        String uniqueRefNumber = requestData.get("Unique Ref Number") != null ? requestData.get("Unique Ref Number") : "";
+        String response = "&transaction_amount="+transactionAmount+"&transaction_id="+uniqueRefNumber;
+        logger.info("transaction details {}",response);
+        return response;
     }
 
     private Transaction getTransaction(final Map<String, String> requestData,  final String strEndPoint, final String transaction_status) {
