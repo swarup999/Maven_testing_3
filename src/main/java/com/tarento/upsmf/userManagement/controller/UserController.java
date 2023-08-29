@@ -37,6 +37,11 @@ public class UserController {
         return userHandler.userDetails(body);
     }
 
+    @PostMapping(value = "/emaildetails", consumes = "application/json", produces = "application/json")
+    public String userEmailDetails(@RequestBody final JsonNode body) throws URISyntaxException, IOException {
+        return userHandler.userEmailDetails(body);
+    }
+
     @PostMapping(value = "/list", consumes = "application/json", produces = "application/json")
     public String listUser(@RequestBody final JsonNode body) throws URISyntaxException, IOException {
         return userHandler.listUser(body);

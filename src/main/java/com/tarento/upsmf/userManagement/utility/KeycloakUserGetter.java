@@ -68,4 +68,29 @@ public class KeycloakUserGetter {
         logger.info("ResponseBody {}", responseBody);
         return responseBody;
     }
+
+    public String findUserByEmail(final String fieldName, final String fieldValue) throws IOException {
+        String userEndpoint = KEYCLOAK_USER_BASE_URL;
+        logger.info("userEndpoint: " ,userEndpoint);
+        if(fieldName != null && fieldValue!= null ) {
+            userEndpoint = userEndpoint + "?" + fieldName + "=" + fieldValue;
+            logger.info("userEndpoint {} after adding email : " ,userEndpoint);
+            JsonNode adminToken = keycloakTokenRetriever.getAdminToken();
+            logger.info("adminToken: " ,adminToken);
+            String accessToken = adminToken.get("access_token").asText();
+            logger.info("accessToken: " ,accessToken);
+
+            HttpClient httpClient = HttpClients.createDefault();
+            HttpGet httpGet = new HttpGet(userEndpoint);
+
+            httpGet.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+            httpGet.setHeader(HttpHeaders.ACCEPT, "application/json");
+
+            org.apache.http.HttpResponse response = httpClient.execute(httpGet);
+            String responseBody = EntityUtils.toString(response.getEntity());
+            logger.info("ResponseBody {}", responseBody);
+            return responseBody;
+        }
+        return "No Response Generated since the inputs were null/empty.";
+    }
 }
