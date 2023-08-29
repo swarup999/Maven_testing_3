@@ -1,7 +1,8 @@
 package com.tarento.upsmf.userManagement.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.tarento.upsmf.userManagement.model.Payment;
+import com.tarento.upsmf.userManagement.model.Transaction;
+import com.tarento.upsmf.userManagement.repository.TransactionRepository;
 import com.tarento.upsmf.userManagement.utility.KeycloakTokenRetriever;
 import com.tarento.upsmf.userManagement.utility.KeycloakUserCredentialPersister;
 import com.tarento.upsmf.userManagement.utility.SunbirdRCKeycloakTokenRetriever;
@@ -20,8 +21,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.net.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @PropertySource({ "classpath:application.properties" })
@@ -43,6 +47,9 @@ public class UserService {
 
     @Autowired
     private KeycloakUserCredentialPersister keycloakUserCredentialPersister;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
 
     private static Environment environment;
     private String BASE_URL;
@@ -197,5 +204,21 @@ public class UserService {
         logger.info("OTP mail to user with body {}",body);
         return keycloakUserCredentialPersister.sendOTPMail(body);
     }
+    public ResponseEntity<List<Transaction>> getAllTransactions() {
+        List<Transaction> result = transactionRepository.findAll();
+        if (result.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    public ResponseEntity<Transaction> getTransactionByUniqueRefNumber(String uniqueRefNumber) {
+        Transaction transaction = transactionRepository.findByUniqueRefNumber(uniqueRefNumber);
+        if (transaction == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(transaction, HttpStatus.OK);
+    }
+
 
 }

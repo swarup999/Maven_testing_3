@@ -2,6 +2,7 @@ package com.tarento.upsmf.userManagement.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tarento.upsmf.userManagement.handler.UserHandler;
+import com.tarento.upsmf.userManagement.model.Transaction;
 import com.tarento.upsmf.userManagement.services.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -86,5 +88,14 @@ public class UserController {
     public String usrOTP(@RequestBody JsonNode body) throws IOException {
         return userHandler.usrOTP(body);
     }
-  
+
+    @GetMapping(value = "/transaction", produces = "application/json")
+    public ResponseEntity<List<Transaction>> getAllTransactions() {
+        return userHandler.getAllTransactions();
+    }
+
+    @GetMapping(value = "/transaction/{uniqueRefNumber}", produces = "application/json")
+    public ResponseEntity<?> getTransactionByUniqueRefNumber(@PathVariable String uniqueRefNumber) {
+        return userHandler.getTransactionByUniqueRefNumber(uniqueRefNumber);
+    }
 }
