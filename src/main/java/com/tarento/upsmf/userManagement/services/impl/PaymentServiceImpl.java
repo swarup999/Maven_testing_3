@@ -121,7 +121,7 @@ public class PaymentServiceImpl implements PaymentService {
         Date transactionDate = null;
         try {
             String date = requestData.get("Transaction Date") != null ? requestData.get("Transaction Date") : "";
-            DateFormat format = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+            DateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
             transactionDate = format.parse(date);
         } catch (ParseException e) {
             logger.error("parsing date failed.",e);
