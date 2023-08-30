@@ -76,9 +76,9 @@ public class KeycloakUserGetter {
             userEndpoint = userEndpoint + "?" + fieldName + "=" + fieldValue;
             logger.info("userEndpoint {} after adding email : " ,userEndpoint);
             JsonNode adminToken = keycloakTokenRetriever.getAdminToken();
-            logger.info("adminToken: " ,adminToken);
+            logger.info("adminToken: {}" ,adminToken);
             String accessToken = adminToken.get("access_token").asText();
-            logger.info("accessToken: " ,accessToken);
+            logger.info("accessToken: {}" ,accessToken);
 
             HttpClient httpClient = HttpClients.createDefault();
             HttpGet httpGet = new HttpGet(userEndpoint);
@@ -87,6 +87,7 @@ public class KeycloakUserGetter {
             httpGet.setHeader(HttpHeaders.ACCEPT, "application/json");
 
             org.apache.http.HttpResponse response = httpClient.execute(httpGet);
+            logger.info("url to be hit {} ",httpGet.toString());
             String responseBody = EntityUtils.toString(response.getEntity());
             logger.info("ResponseBody {}", responseBody);
             return responseBody;
