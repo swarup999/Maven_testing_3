@@ -73,6 +73,7 @@ public class KeycloakTokenRetriever {
         String responseBody = EntityUtils.toString(response.getEntity());
         logger.info("Response body: {}", responseBody);
         JsonNode jsonNode = mapper.readTree(responseBody);
+        logger.info("jsonNode : {}", jsonNode);
         return jsonNode;
     }
 }
