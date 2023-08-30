@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 @Component
 @PropertySource({ "classpath:application.properties" })
@@ -53,9 +55,9 @@ public class KeycloakUserGetter {
         }
         logger.info("userEndpoint {} after adding userId : " ,userEndpoint);
         JsonNode adminToken = keycloakTokenRetriever.getAdminToken();
-        logger.info("adminToken: " ,adminToken);
+        logger.info("adminToken: {}" ,adminToken);
         String accessToken = adminToken.get("access_token").asText();
-        logger.info("accessToken: " ,accessToken);
+        logger.info("accessToken: {}" ,accessToken);
 
         HttpClient httpClient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(userEndpoint);
@@ -73,7 +75,13 @@ public class KeycloakUserGetter {
         String userEndpoint = KEYCLOAK_USER_BASE_URL;
         logger.info("userEndpoint: " ,userEndpoint);
         if(fieldName != null && fieldValue!= null ) {
-            userEndpoint = userEndpoint + "?" + fieldName + "=" + fieldValue;
+            if(fieldName.equalsIgnoreCase("email")) {
+                String encodeEmail = encodeEmail(fieldValue);
+                userEndpoint = userEndpoint + "?" + fieldName + "=" + encodeEmail;
+            } else {
+                userEndpoint = userEndpoint + "?" + fieldName + "=" + fieldValue;
+            }
+
             logger.info("userEndpoint {} after adding email : " ,userEndpoint);
             JsonNode adminToken = keycloakTokenRetriever.getAdminToken();
             logger.info("adminToken: {}" ,adminToken);
@@ -93,5 +101,10 @@ public class KeycloakUserGetter {
             return responseBody;
         }
         return "No Response Generated since the inputs were null/empty.";
+    }
+
+    private String encodeEmail(String email) throws UnsupportedEncodingException {
+        String encode = URLEncoder.encode(email, "UTF-8");
+        return encode;
     }
 }

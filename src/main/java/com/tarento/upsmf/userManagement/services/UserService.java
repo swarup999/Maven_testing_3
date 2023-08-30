@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.tarento.upsmf.userManagement.model.Transaction;
 import com.tarento.upsmf.userManagement.repository.TransactionRepository;
 import com.tarento.upsmf.userManagement.utility.KeycloakTokenRetriever;
+import com.tarento.upsmf.userManagement.utility.KeycloakUserCount;
 import com.tarento.upsmf.userManagement.utility.KeycloakUserCredentialPersister;
 import com.tarento.upsmf.userManagement.utility.SunbirdRCKeycloakTokenRetriever;
 import org.apache.http.client.HttpClient;
@@ -50,6 +51,9 @@ public class UserService {
 
     @Autowired
     private TransactionRepository transactionRepository;
+
+    @Autowired
+    private KeycloakUserCount keycloakUserCount;
 
     private static Environment environment;
     private String BASE_URL;
@@ -119,6 +123,10 @@ public class UserService {
         HttpEntity httpEntity = new HttpEntity(body, headers);
         ResponseEntity<JsonNode> result = restTemplate.postForEntity(uri,httpEntity,JsonNode.class);
         return result;
+    }
+
+    public String userCount() throws IOException {
+        return keycloakUserCount.getUserCount();
     }
 
     public ResponseEntity<JsonNode> activateUser(final JsonNode body) throws URISyntaxException{

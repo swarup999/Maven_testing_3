@@ -62,9 +62,7 @@ public class KeycloakUserCreator {
         String keycloakBaseUrl = KEYCLOAK_USER_BASE_URL;
         logger.info("keycloakBaseUrl: " ,keycloakBaseUrl);
         JsonNode adminToken = keycloakTokenRetriever.getAdminToken();
-        logger.info("adminToken: {}" ,adminToken);
         String accessToken = adminToken.get("access_token").asText();
-        logger.info("accessToken: {}" ,accessToken);
         HttpClient httpClient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(keycloakBaseUrl);
 
@@ -80,7 +78,6 @@ public class KeycloakUserCreator {
         HttpResponse response = httpClient.execute(httpPost);
         logger.info("Response from httpClient call : {}", response);
         String responseBody = EntityUtils.toString(response.getEntity());
-        logger.info("Response from keycloak Rest API call : {}", responseBody);
         if (response.getStatusLine().getStatusCode() == 201) {
             String location = response.getFirstHeader("location").getValue();
             location = location.substring(location.lastIndexOf("/")+1);
@@ -97,7 +94,7 @@ public class KeycloakUserCreator {
                 ((ObjectNode)mailPayLoad).put("userId",location);
                 keycloakUserCredentialPersister.sendUserCreateMail(mailPayLoad);
             }catch (Exception ex){
-                logger.error("error occured {}",ex);
+                logger.error("error occurred.",ex);
             }
         }
         logger.info("ResponseBody {}", responseBody);

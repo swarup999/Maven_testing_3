@@ -1,6 +1,9 @@
 package com.tarento.upsmf.userManagement.handler;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tarento.upsmf.userManagement.model.Payment;
 import com.tarento.upsmf.userManagement.model.Transaction;
 import com.tarento.upsmf.userManagement.services.UserService;
@@ -35,6 +38,7 @@ public class UserHandler {
     @Autowired
     private KeycloakUserActivateDeActivate keycloakUserActivateDeActivate;
 
+    private ObjectMapper mapper = new ObjectMapper();
     public String createUser(final JsonNode body) throws URISyntaxException, IOException {
         logger.info("creating user with payload {} ", body.toPrettyString());
         String response = keycloakUserCreator.createUser(body);
@@ -82,7 +86,16 @@ public class UserHandler {
         int offset = body.get("offset").asInt();
         int size = body.get("size").asInt();
         String users = keycloakUserGetter.findUser(null,offset,size);
-        return users;
+        JsonNode jsonNode = mapper.readTree(users);
+        JsonNode totalcount = mapper.createObjectNode();
+        String count = userService.userCount();
+        ((ObjectNode)totalcount).put("totalCount",count);
+        ((ArrayNode)jsonNode).set(0,totalcount);
+        return jsonNode.toPrettyString();
+    }
+
+    public String userCount() throws IOException {
+        return userService.userCount();
     }
 
     public String activateUser(final JsonNode body) throws URISyntaxException, IOException {

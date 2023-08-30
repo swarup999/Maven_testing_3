@@ -49,6 +49,11 @@ public class UserController {
         return userHandler.listUser(body);
     }
 
+    @GetMapping(value = "/count", produces = "application/json")
+    public String userCount() throws IOException {
+        return userHandler.userCount();
+    }
+
     @PostMapping(value = "/activate", consumes = "application/json", produces = "application/json")
     public String activateUser(@RequestBody final JsonNode body) throws URISyntaxException, IOException {
         return userHandler.activateUser(body);
