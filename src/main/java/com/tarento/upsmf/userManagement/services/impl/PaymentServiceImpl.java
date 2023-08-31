@@ -109,22 +109,85 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private Transaction getTransaction(final Map<String, String> requestData,  final String strEndPoint, final String transaction_status) {
-        Long id = Long.valueOf(requestData.get("ID"));
-        Double transactionAmount = Double.valueOf(requestData.get("Transaction Amount"));
-        String paymentMode = requestData.get("Payment Mode");
-        String RS = requestData.get("RS");
-        String RSV = requestData.get("RSV");
-        String TDR = requestData.get("TDR");
-        String interchangeValue = requestData.get("Interchange Value");
-        Double processingFeeAmount = Double.valueOf(requestData.get("Processing Fee Amount"));
-        Double totalAmount = Double.valueOf(requestData.get("Total Amount"));
-        String TPS = requestData.get("TPS");
-        Double serviceTaxAmount = Double.valueOf(requestData.get("Service Tax Amount"));
-        String optionalFields = requestData.get("optional fields");
-        String module = requestData.get("module");
-        String referenceNo = requestData.get("ReferenceNo");
-        Integer subMerchantId = Integer.valueOf(requestData.get("SubMerchantId"));
-        String uniqueRefNumber = requestData.get("Unique Ref Number");
+
+        Long id = -1L;
+        if(requestData.get("ID") != null) {
+            id = Long.valueOf(requestData.get("ID"));
+        }
+
+        Double transactionAmount = -1.00;
+        if(requestData.get("Transaction Amount") != null) {
+            transactionAmount = Double.valueOf(requestData.get("Transaction Amount"));
+        }
+
+        String paymentMode = "";
+        if(requestData.get("Payment Mode") != null) {
+            paymentMode = requestData.get("Payment Mode");
+        }
+
+        String RS = "";
+        if(requestData.get("RS") != null) {
+            RS = requestData.get("RS");
+        }
+        String RSV = "";
+        if(requestData.get("RSV") != null) {
+            RSV = requestData.get("RSV");
+        }
+        String TDR = "";
+        if(requestData.get("TDR") != null) {
+            TDR = requestData.get("TDR");
+        }
+        String interchangeValue = "";
+        if(requestData.get("Interchange Value") != null) {
+            interchangeValue = requestData.get("Interchange Value");
+        }
+
+        Double processingFeeAmount = -1.00;
+        if(requestData.get("Processing Fee Amount") != null) {
+            processingFeeAmount = Double.valueOf(requestData.get("Processing Fee Amount"));
+        }
+
+        Double totalAmount = -1.00;
+        if(requestData.get("Total Amount") != null) {
+            totalAmount = Double.valueOf(requestData.get("Total Amount"));
+        }
+
+        String TPS = "";
+        if(requestData.get("TPS")  != null) {
+            TPS = requestData.get("TPS");
+        }
+
+        Double serviceTaxAmount = -1.00;
+        if(requestData.get("Service Tax Amount") != null) {
+            serviceTaxAmount = Double.valueOf(requestData.get("Service Tax Amount"));
+        }
+
+        String optionalFields = "";
+        if(requestData.get("optional fields") != null) {
+            optionalFields = requestData.get("optional fields");
+        }
+
+        String module = "";
+        if(requestData.get("module") != null) {
+            module = requestData.get("module");
+        }
+
+        String referenceNo = "";
+        if(requestData.get("ReferenceNo") != null) {
+            referenceNo = requestData.get("ReferenceNo");
+        }
+
+        Integer subMerchantId = -1;
+        if(requestData.get("SubMerchantId") != null) {
+            subMerchantId = Integer.valueOf(requestData.get("SubMerchantId"));
+        }
+
+        String uniqueRefNumber = null;
+        if(requestData.get("Unique Ref Number") != null) {
+            uniqueRefNumber = requestData.get("Unique Ref Number");
+        }
+
+
         String responseCode = requestData.get("Response Code");
 
         Date transactionDate = null;
