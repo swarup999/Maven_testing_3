@@ -187,14 +187,15 @@ public class PaymentServiceImpl implements PaymentService {
             uniqueRefNumber = requestData.get("Unique Ref Number");
         }
 
-
         String responseCode = requestData.get("Response Code");
 
         Date transactionDate = null;
         try {
             String date = requestData.get("Transaction Date") != null ? requestData.get("Transaction Date") : "";
             DateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-            transactionDate = format.parse(date);
+            if(!date.isBlank()) {
+                transactionDate = format.parse(date);
+            }
         } catch (ParseException e) {
             logger.error("parsing date failed.",e);
         }

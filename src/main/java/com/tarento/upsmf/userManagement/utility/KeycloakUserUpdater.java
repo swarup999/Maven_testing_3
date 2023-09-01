@@ -1,6 +1,7 @@
 package com.tarento.upsmf.userManagement.utility;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -29,8 +30,10 @@ public class KeycloakUserUpdater {
     private KeycloakTokenRetriever keycloakTokenRetriever;
     private static Environment environment;
     private static final Logger logger = LoggerFactory.getLogger(KeycloakUserUpdater.class);
-
     private String KEYCLOAK_USER_BASE_URL;
+
+    @Autowired
+    private KeycloakUserCredentialPersister keycloakUserCredentialPersister;
 
     @PostConstruct
     public void init(){
@@ -62,6 +65,12 @@ public class KeycloakUserUpdater {
         }
         logger.info("ResponseBody {}", responseBody);
         if (response.getStatusLine().getStatusCode() == 204) {
+            if(requestBody.get("credentials")!=null){
+                ArrayNode credentials = (ArrayNode)requestBody.get("credentials");
+                if(!credentials.isEmpty() && !(credentials.get(0).get("value").asText().isBlank())) {
+                    keycloakUserCredentialPersister.persistUserInfo(userName, credentials.get(0).get("value").asText());
+                }
+            }
             responseBody = " Status 200. User updated successfully.";
         } else {
             responseBody = "Failed to update user." + responseBody;
