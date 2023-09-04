@@ -73,8 +73,9 @@ public class KeycloakUserUpdater {
                 ArrayNode credentials = (ArrayNode)requestBody.get("credentials");
                 logger.info("credentials[] {}", credentials);
                 if(!credentials.isEmpty() && !(credentials.get(0).get("value").asText().isBlank())) {
-                    logger.info("userName : {}, credentials.get(0).get(\"value\").asText() : {}",userName, credentials.get(0).get("value").asText());
-                    String value = keycloakUserCredentialPersister.persistUserInfo(userName, credentials.get(0).get("value").asText());
+                    String email = requestBody.get("email").asText();
+                    logger.info("email : {}, credentials.get(0).get(\"value\").asText() : {}",email, credentials.get(0).get("value").asText());
+                    String value = keycloakUserCredentialPersister.persistUserInfo(email, credentials.get(0).get("value").asText());
                     logger.info("persistUserInfo response {}", value);
                 }
             }
