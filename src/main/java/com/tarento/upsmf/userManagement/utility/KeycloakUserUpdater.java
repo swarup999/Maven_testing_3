@@ -59,6 +59,7 @@ public class KeycloakUserUpdater {
         StringEntity entity = new StringEntity(requestBody.toPrettyString());
         httpPut.setEntity(entity);
         HttpResponse response = httpClient.execute(httpPut);
+        logger.info("Response after execution: {}",response);
         String responseBody = "";
         if(response.getEntity() != null) {
             responseBody = EntityUtils.toString(response.getEntity());
