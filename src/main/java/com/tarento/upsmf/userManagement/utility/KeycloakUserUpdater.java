@@ -59,17 +59,23 @@ public class KeycloakUserUpdater {
         StringEntity entity = new StringEntity(requestBody.toPrettyString());
         httpPut.setEntity(entity);
         HttpResponse response = httpClient.execute(httpPut);
-        logger.info("Response after execution: {}",response);
+        logger.info("******** Response after execution: {} ********",response);
         String responseBody = "";
         if(response.getEntity() != null) {
+        logger.info("******** Response Entity: {} ********",response.getEntity());
             responseBody = EntityUtils.toString(response.getEntity());
         }
         logger.info("ResponseBody {}", responseBody);
+        logger.info("response.getStatusLine().getStatusCode() {} ", response.getStatusLine().getStatusCode());
         if (response.getStatusLine().getStatusCode() == 204) {
             if(requestBody.get("credentials")!=null){
+                logger.info("credentials is not null");
                 ArrayNode credentials = (ArrayNode)requestBody.get("credentials");
+                logger.info("credentials[] {}", credentials);
                 if(!credentials.isEmpty() && !(credentials.get(0).get("value").asText().isBlank())) {
-                    keycloakUserCredentialPersister.persistUserInfo(userName, credentials.get(0).get("value").asText());
+                    logger.info("userName : {}, credentials.get(0).get(\"value\").asText() : {}",userName, credentials.get(0).get("value").asText());
+                    String value = keycloakUserCredentialPersister.persistUserInfo(userName, credentials.get(0).get("value").asText());
+                    logger.info("persistUserInfo response {}", value);
                 }
             }
             responseBody = " Status 200. User updated successfully.";
