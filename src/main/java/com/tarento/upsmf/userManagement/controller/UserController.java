@@ -104,8 +104,8 @@ public class UserController {
         return userHandler.getTransactionByUniqueRefNumber(uniqueRefNumber);
     }
 
-    @GetMapping(value = "/attribute/{fieldName}/{fieldValue}/{offset}/{limit}", produces = "application/json")
-    public List getUserByAttribute(@PathVariable String fieldName, @PathVariable String fieldValue, @PathVariable int offset, @PathVariable int limit) throws SQLException {
-        return userHandler.getUserByAttribute(fieldName,fieldValue, offset, limit);
+    @PostMapping(value = "/attribute", produces = "application/json")
+    public List getUserByAttribute(@RequestBody JsonNode body) throws SQLException {
+        return userHandler.getUserByAttribute(body);
     }
 }
