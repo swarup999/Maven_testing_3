@@ -243,13 +243,13 @@ public class UserService {
         return new ResponseEntity<>(transaction, HttpStatus.OK);
     }
 
-    public List<UserAttributeModel> getUserByAttribute(String fieldName, String fieldValue) {
-        return userAttributeRepository.findUserByAttribute(fieldName, fieldValue);
+    public List<UserAttributeModel> getUserByAttribute(String fieldName, String fieldValue, int offset, int limit) {
+        return userAttributeRepository.findUserByAttribute(fieldName, fieldValue,offset,limit);
     }
 
     public List getUserListByAttribute(String fieldName, String fieldValue, int offset, int limit) throws SQLException {
 
-        List<UserAttributeModel> userByAttribute = getUserByAttribute(fieldName, fieldValue);
+        List<UserAttributeModel> userByAttribute = getUserByAttribute(fieldName, fieldValue,offset,limit);
         if(userByAttribute == null || userByAttribute.isEmpty()){
             logger.info("No records found.");
             return Collections.EMPTY_LIST;
@@ -257,7 +257,7 @@ public class UserService {
         logger.info("Records found {}",userByAttribute);
         List<String> collect = userByAttribute.stream().map(UserAttributeModel::getUserId).collect(Collectors.toList());
 
-        Map<String, UserRepresentation> userRepresentationMap = getStringUserRepresentationMap(collect, offset, limit);
+        Map<String, UserRepresentation> userRepresentationMap = getStringUserRepresentationMap(collect);
         if(userRepresentationMap.isEmpty()){
             logger.info("No UserRepresentation records found for {}",collect);
             return Collections.EMPTY_LIST;
@@ -265,9 +265,9 @@ public class UserService {
         return new ArrayList<>(userRepresentationMap.values());
     }
 
-    private Map<String, UserRepresentation> getStringUserRepresentationMap(List<String> collect, int offset, int limit) throws SQLException {
+    private Map<String, UserRepresentation> getStringUserRepresentationMap(List<String> collect) throws SQLException {
         Connection connection = Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection();
-        String formattedString = getFormattedStringFromCollection(collect, offset, limit);
+        String formattedString = getFormattedStringFromCollection(collect);
         Map<String, UserRepresentation> userRepresentationMap = new HashMap<>();
         ResultSet resultSet = null;
         PreparedStatement preparedStatement = null;
@@ -311,7 +311,7 @@ public class UserService {
         return userRepresentationMap;
     }
 
-    private String getFormattedStringFromCollection(List<String> collect, int offset, int limit) {
+    private String getFormattedStringFromCollection(List<String> collect) {
         StringBuffer sbf = new StringBuffer();
         sbf.append("select ue.*,ua.name,ua.value  from user_entity ue join user_attribute ua on ua.user_id = ue.id WHERE ue.id IN (");
         collect.stream().forEach(item -> {
@@ -319,7 +319,7 @@ public class UserService {
             sbf.append(",");
         });
         String substring = sbf.substring(0, sbf.lastIndexOf(","));
-        substring = substring + (") OFFSET " + offset + " LIMIT " + limit);
+        substring = substring + (" )");
         logger.info("Query to be Executed {}",substring);
         return substring;
     }
