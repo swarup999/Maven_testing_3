@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.tarento.upsmf.userManagement.model.Payment;
 import com.tarento.upsmf.userManagement.model.Transaction;
 import com.tarento.upsmf.userManagement.services.UserService;
 import com.tarento.upsmf.userManagement.utility.*;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -165,5 +165,10 @@ public class UserHandler {
 
     public ResponseEntity<?> getTransactionByUniqueRefNumber(String uniqueRefNumber) {
         return userService.getTransactionByUniqueRefNumber(uniqueRefNumber);
+    }
+
+    public List getUserByAttribute(String fieldName, String fieldValue, int offset, int limit) throws SQLException {
+        logger.info("Fetching user info by field {} and value {} with offset {} and limit {}",fieldName, fieldValue, offset, limit);
+        return userService.getUserListByAttribute(fieldName,fieldValue, offset, limit);
     }
 }

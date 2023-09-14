@@ -5,12 +5,12 @@ import com.tarento.upsmf.userManagement.handler.UserHandler;
 import com.tarento.upsmf.userManagement.model.Transaction;
 import com.tarento.upsmf.userManagement.services.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -102,5 +102,10 @@ public class UserController {
     @GetMapping(value = "/transaction/{uniqueRefNumber}", produces = "application/json")
     public ResponseEntity<?> getTransactionByUniqueRefNumber(@PathVariable String uniqueRefNumber) {
         return userHandler.getTransactionByUniqueRefNumber(uniqueRefNumber);
+    }
+
+    @GetMapping(value = "/attribute/{fieldName}/{fieldValue}/{offset}/{limit}", produces = "application/json")
+    public List getUserByAttribute(@PathVariable String fieldName, @PathVariable String fieldValue, @PathVariable int offset, @PathVariable int limit) throws SQLException {
+        return userHandler.getUserByAttribute(fieldName,fieldValue, offset, limit);
     }
 }

@@ -2,13 +2,16 @@ package com.tarento.upsmf.userManagement.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tarento.upsmf.userManagement.model.Transaction;
+import com.tarento.upsmf.userManagement.model.UserAttributeModel;
 import com.tarento.upsmf.userManagement.repository.TransactionRepository;
+import com.tarento.upsmf.userManagement.repository.UserAttributeRepository;
 import com.tarento.upsmf.userManagement.utility.KeycloakTokenRetriever;
 import com.tarento.upsmf.userManagement.utility.KeycloakUserCount;
 import com.tarento.upsmf.userManagement.utility.KeycloakUserCredentialPersister;
 import com.tarento.upsmf.userManagement.utility.SunbirdRCKeycloakTokenRetriever;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +19,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -24,9 +28,12 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @PropertySource({ "classpath:application.properties" })
@@ -53,11 +60,19 @@ public class UserService {
     private TransactionRepository transactionRepository;
 
     @Autowired
+    private UserAttributeRepository userAttributeRepository;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
     private KeycloakUserCount keycloakUserCount;
 
     private static Environment environment;
     private String BASE_URL;
     private String KEYCLOAK_BASEURL;
+
+    private Connection connection;
 
     @PostConstruct
     public void init(){
@@ -228,5 +243,85 @@ public class UserService {
         return new ResponseEntity<>(transaction, HttpStatus.OK);
     }
 
+    public List<UserAttributeModel> getUserByAttribute(String fieldName, String fieldValue) {
+        return userAttributeRepository.findUserByAttribute(fieldName, fieldValue);
+    }
+
+    public List getUserListByAttribute(String fieldName, String fieldValue, int offset, int limit) throws SQLException {
+
+        List<UserAttributeModel> userByAttribute = getUserByAttribute(fieldName, fieldValue);
+        if(userByAttribute == null || userByAttribute.isEmpty()){
+            logger.info("No records found.");
+            return Collections.EMPTY_LIST;
+        }
+        logger.info("Records found {}",userByAttribute);
+        List<String> collect = userByAttribute.stream().map(UserAttributeModel::getUserId).collect(Collectors.toList());
+
+        Map<String, UserRepresentation> userRepresentationMap = getStringUserRepresentationMap(collect, offset, limit);
+        if(userRepresentationMap.isEmpty()){
+            logger.info("No UserRepresentation records found for {}",collect);
+            return Collections.EMPTY_LIST;
+        }
+        return new ArrayList<>(userRepresentationMap.values());
+    }
+
+    private Map<String, UserRepresentation> getStringUserRepresentationMap(List<String> collect, int offset, int limit) throws SQLException {
+        Connection connection = Objects.requireNonNull(jdbcTemplate.getDataSource()).getConnection();
+        String formattedString = getFormattedStringFromCollection(collect, offset, limit);
+        Map<String, UserRepresentation> userRepresentationMap = new HashMap<>();
+        ResultSet resultSet = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            preparedStatement = connection.prepareStatement(formattedString);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet != null) {
+                while (resultSet.next()) {
+                    String id = resultSet.getString("id");
+                    UserRepresentation userRepresentation = null;
+                    if (userRepresentationMap.containsKey(id)) {
+                        userRepresentation = userRepresentationMap.get(id);
+                        userRepresentation.singleAttribute(resultSet.getString("name"), resultSet.getString("value"));
+                    } else {
+                        userRepresentation = new UserRepresentation();
+                        userRepresentation.setId(id);
+                        userRepresentation.setUsername(resultSet.getString("username"));
+                        userRepresentation.setEnabled(resultSet.getBoolean("enabled"));
+                        userRepresentation.setEmail(resultSet.getString("email"));
+                        userRepresentation.setFirstName(resultSet.getString("first_name"));
+                        userRepresentation.setLastName(resultSet.getString("last_name"));
+                        userRepresentation.singleAttribute(resultSet.getString("name"), resultSet.getString("value"));
+                        userRepresentationMap.put(id, userRepresentation);
+                    }
+                }
+            }
+        } catch (Exception exception){
+            logger.error("Exception while processing data from DB.",exception);
+        } finally {
+            if(resultSet != null){
+                resultSet.close();
+            }
+            if(preparedStatement != null){
+                preparedStatement.close();
+            }
+            if(connection != null){
+                connection.close();
+            }
+        }
+        logger.info("userRepresentationMap {}",userRepresentationMap);
+        return userRepresentationMap;
+    }
+
+    private String getFormattedStringFromCollection(List<String> collect, int offset, int limit) {
+        StringBuffer sbf = new StringBuffer();
+        sbf.append("select ue.*,ua.name,ua.value  from user_entity ue join user_attribute ua on ua.user_id = ue.id WHERE ue.id IN (");
+        collect.stream().forEach(item -> {
+            sbf.append("'" + item + "'");
+            sbf.append(",");
+        });
+        String substring = sbf.substring(0, sbf.lastIndexOf(","));
+        substring = substring + (") OFFSET " + offset + " LIMIT " + limit);
+        logger.info("Query to be Executed {}",substring);
+        return substring;
+    }
 
 }
