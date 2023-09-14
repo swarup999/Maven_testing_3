@@ -104,5 +104,8 @@ public class UserController {
         return userHandler.getTransactionByUniqueRefNumber(uniqueRefNumber);
     }
 
-
+    @PostMapping(value = "/attribute", produces = "application/json")
+    public ResponseEntity<String> getUserByAttribute(@RequestBody JsonNode body) throws SQLException, IOException, URISyntaxException {
+        return userHandler.getUserByAttribute(body);
+    }
 }

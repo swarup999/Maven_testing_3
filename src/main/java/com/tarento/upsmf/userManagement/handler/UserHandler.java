@@ -167,5 +167,7 @@ public class UserHandler {
         return userService.getTransactionByUniqueRefNumber(uniqueRefNumber);
     }
 
-
+    public ResponseEntity<String> getUserByAttribute(JsonNode body) throws SQLException, IOException, URISyntaxException {
+        return userService.getUserListByAttribute(body);
+    }
 }

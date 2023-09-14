@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.*;
 
 @Component
@@ -229,6 +230,14 @@ public class UserService {
         return new ResponseEntity<>(transaction, HttpStatus.OK);
     }
 
-
+    public ResponseEntity<String> getUserListByAttribute(JsonNode body) throws SQLException, IOException, URISyntaxException {
+        logger.info("fetching user attribute for payload {} ", body.toPrettyString());
+        RestTemplate restTemplate = new RestTemplate();
+        URI uri = new URI(KEYCLOAK_BASEURL + "/user/attribute");
+        HttpHeaders headerForKeycloak = getHeaderForKeycloak();
+        HttpEntity httpEntity = new HttpEntity(body, headerForKeycloak);
+        ResponseEntity<String> result = restTemplate.postForEntity(uri,httpEntity,String.class);
+        return result;
+    }
 
 }
