@@ -167,12 +167,5 @@ public class UserHandler {
         return userService.getTransactionByUniqueRefNumber(uniqueRefNumber);
     }
 
-    public List getUserByAttribute(JsonNode body) throws SQLException {
-        String fieldName = body.get("fieldName").asText();
-        String fieldValue = body.get("fieldValue").asText();
-        int offset = body.get("offset").asInt();
-        int limit = body.get("limit").asInt();
-        logger.info("Fetching user info by field {} and value {} with offset {} and limit {}",fieldName, fieldValue, offset, limit);
-        return userService.getUserListByAttribute(fieldName,fieldValue, offset, limit);
-    }
+
 }

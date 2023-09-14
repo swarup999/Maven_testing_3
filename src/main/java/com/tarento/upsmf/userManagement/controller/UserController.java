@@ -104,8 +104,5 @@ public class UserController {
         return userHandler.getTransactionByUniqueRefNumber(uniqueRefNumber);
     }
 
-    @PostMapping(value = "/attribute", produces = "application/json")
-    public List getUserByAttribute(@RequestBody JsonNode body) throws SQLException {
-        return userHandler.getUserByAttribute(body);
-    }
+
 }
