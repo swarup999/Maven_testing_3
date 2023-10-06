@@ -80,9 +80,9 @@ public class PaymentServiceImpl implements PaymentService {
                 strEndPoint = AFFILIATION_PAYMENT_GATEWAY_ENDPOINT;
             } else if(strings.contains("exam")) {
                 strEndPoint = EXAM_PAYMENT_GATEWAY_ENDPOINT;
-                // update db for provided transaction id
                 // get ref no
-                String referenceNo = requestData.get("reference_no");
+                String referenceNo = requestData.get("ReferenceNo");
+                // update db for provided transaction id
                 updateStudentFeeStatus(referenceNo);
             }
             String responseString = "", transaction_status = "";
