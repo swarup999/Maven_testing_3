@@ -44,7 +44,7 @@ public class PaymentServiceImpl implements PaymentService {
     private String AFFILIATION_PAYMENT_GATEWAY_ENDPOINT;
     private String EXAM_PAYMENT_GATEWAY_ENDPOINT;
     private String FEE_STATUS_UPDATE_ENDPOINT;
-
+    private String EXAMS_AUTH_TOKEN;
     private String AES_KEY_FOR_PAYMENT_SUCCESS;
 
     @Autowired
@@ -58,6 +58,7 @@ public class PaymentServiceImpl implements PaymentService {
         AES_KEY_FOR_PAYMENT_SUCCESS = getPropertyValue("aes_key_for_payment_success");
         EXAM_PAYMENT_GATEWAY_ENDPOINT = getPropertyValue("exam_payment_Gateway_EndPoint");
         FEE_STATUS_UPDATE_ENDPOINT = getPropertyValue("exam_fee_status_update_EndPoint");
+        EXAMS_AUTH_TOKEN = getPropertyValue("exam_service_auth_token");
     }
 
     public static String getPropertyValue(String property){
@@ -111,8 +112,7 @@ public class PaymentServiceImpl implements PaymentService {
     private void updateStudentFeeStatus(String referenceNo) {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        // TODO check on this
-        //httpHeaders.setBearerAuth("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJSR3RkMkZzeG1EMnJER3I4dkJHZ0N6MVhyalhZUzBSSyJ9.kMLn6177rvY53i0RAN3SPD5m3ctwaLb32pMYQ65nBdA");
+        httpHeaders.setBearerAuth(EXAMS_AUTH_TOKEN);
         HttpEntity<String> entity = new HttpEntity<String>(referenceNo, httpHeaders);
         ResponseEntity<ResponseDto> responseEntity = restTemplate.postForObject(FEE_STATUS_UPDATE_ENDPOINT, entity, ResponseEntity.class);
         logger.info("Update student fee status - {}", responseEntity);
