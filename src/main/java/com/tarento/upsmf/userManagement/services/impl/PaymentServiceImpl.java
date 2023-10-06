@@ -1,34 +1,29 @@
 package com.tarento.upsmf.userManagement.services.impl;
 
-import com.tarento.upsmf.userManagement.model.Payment;
+import com.tarento.upsmf.userManagement.model.ResponseDto;
 import com.tarento.upsmf.userManagement.model.Transaction;
-import com.tarento.upsmf.userManagement.repository.PaymentRepository;
 import com.tarento.upsmf.userManagement.repository.TransactionRepository;
 import com.tarento.upsmf.userManagement.services.PaymentService;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @Service
@@ -47,8 +42,13 @@ public class PaymentServiceImpl implements PaymentService {
 
     private String REGISTRATION_PAYMENT_GATEWAY_ENDPOINT;
     private String AFFILIATION_PAYMENT_GATEWAY_ENDPOINT;
+    private String EXAM_PAYMENT_GATEWAY_ENDPOINT;
+    private String FEE_STATUS_UPDATE_ENDPOINT;
 
     private String AES_KEY_FOR_PAYMENT_SUCCESS;
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     @PostConstruct
     public void init(){
@@ -56,6 +56,8 @@ public class PaymentServiceImpl implements PaymentService {
         REGISTRATION_PAYMENT_GATEWAY_ENDPOINT = getPropertyValue("registration_payment_Gateway_EndPoint");
         AFFILIATION_PAYMENT_GATEWAY_ENDPOINT = getPropertyValue("affiliation_payment_Gateway_EndPoint");
         AES_KEY_FOR_PAYMENT_SUCCESS = getPropertyValue("aes_key_for_payment_success");
+        EXAM_PAYMENT_GATEWAY_ENDPOINT = getPropertyValue("exam_payment_Gateway_EndPoint");
+        FEE_STATUS_UPDATE_ENDPOINT = getPropertyValue("exam_fee_status_update_EndPoint");
     }
 
     public static String getPropertyValue(String property){
@@ -76,6 +78,12 @@ public class PaymentServiceImpl implements PaymentService {
                 strEndPoint = REGISTRATION_PAYMENT_GATEWAY_ENDPOINT;
             } else if (strings.contains("affiliation")) {
                 strEndPoint = AFFILIATION_PAYMENT_GATEWAY_ENDPOINT;
+            } else if(strings.contains("exam")) {
+                strEndPoint = EXAM_PAYMENT_GATEWAY_ENDPOINT;
+                // update db for provided transaction id
+                // get ref no
+                String referenceNo = requestData.get("reference_no");
+                updateStudentFeeStatus(referenceNo);
             }
             String responseString = "", transaction_status = "";
             String transactionDetails = getTransactionDetails(requestData);
@@ -98,6 +106,19 @@ public class PaymentServiceImpl implements PaymentService {
             return new ResponseEntity<String>(null, httpHeaders, HttpStatus.FOUND);
         }
         return new ResponseEntity<String>(null, httpHeaders, HttpStatus.NOT_FOUND);
+    }
+
+    private void updateStudentFeeStatus(String referenceNo) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        // TODO check on this
+        //httpHeaders.setBearerAuth("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJSR3RkMkZzeG1EMnJER3I4dkJHZ0N6MVhyalhZUzBSSyJ9.kMLn6177rvY53i0RAN3SPD5m3ctwaLb32pMYQ65nBdA");
+        HttpEntity<String> entity = new HttpEntity<String>(referenceNo, httpHeaders);
+        ResponseEntity<ResponseDto> responseEntity = restTemplate.postForObject(FEE_STATUS_UPDATE_ENDPOINT, entity, ResponseEntity.class);
+        logger.info("Update student fee status - {}", responseEntity);
+        if(responseEntity != null && responseEntity.getStatusCode() == HttpStatus.OK) {
+            logger.info("Student Fee updated successfully");
+        }
     }
 
     private String getTransactionDetails(Map<String, String> requestData) {
