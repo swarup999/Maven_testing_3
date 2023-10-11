@@ -110,10 +110,12 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private void updateStudentFeeStatus(String referenceNo) {
+        logger.info("updating student fee for ref - {}", referenceNo);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         httpHeaders.setBearerAuth(EXAMS_AUTH_TOKEN);
         HttpEntity<String> entity = new HttpEntity<String>(referenceNo, httpHeaders);
+        logger.info("exam url - {}", FEE_STATUS_UPDATE_ENDPOINT);
         ResponseEntity<ResponseDto> responseEntity = restTemplate.postForObject(FEE_STATUS_UPDATE_ENDPOINT, entity, ResponseEntity.class);
         logger.info("Update student fee status - {}", responseEntity);
         if(responseEntity != null && responseEntity.getStatusCode() == HttpStatus.OK) {
