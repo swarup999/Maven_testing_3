@@ -79,7 +79,7 @@ public class PaymentServiceImpl implements PaymentService {
                 strEndPoint = REGISTRATION_PAYMENT_GATEWAY_ENDPOINT;
             } else if (strings.contains("affiliation")) {
                 strEndPoint = AFFILIATION_PAYMENT_GATEWAY_ENDPOINT;
-            } else if(strings.contains("exam")) {
+            } else if(strings.contains("exam") || strings.contains("EXAM")) {
                 strEndPoint = EXAM_PAYMENT_GATEWAY_ENDPOINT;
                 // get ref no
                 String referenceNo = requestData.get("ReferenceNo");
