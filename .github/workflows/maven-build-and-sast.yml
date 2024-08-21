@@ -1,0 +1,68 @@
+name: Maven Build and SAST Check
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-sast:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Install dependencies
+        run: mvn install -DskipTests=true
+
+      - name: Build application
+        run: mvn package
+
+      - name: Create project zip
+        run: zip -r project.zip . -x "*.git*"
+
+      - name: Perform SAST Scan
+        id: sast
+        run: |
+          RESPONSE=$(curl -X POST \
+            -H "Client-ID: ${{ secrets.INTRUCEPT_CLIENT_ID }}" \
+            -H "Client-Secret: ${{ secrets.INTRUCEPT_CLIENT_SECRET }}" \
+            -F "projectZipFile=@project.zip" \
+            -F "applicationId=${{ secrets.INTRUCEPT_APPLICATION_ID }}" \
+            -F "scanName=New Scan from GitHub Actions" \
+            -F "language=java" \
+            https://sast-backend.intruceptlabs.com/api/v1/integrations/performSASTScan)
+          
+          echo "SAST Response: $RESPONSE"
+          
+          CAN_PROCEED=$(echo $RESPONSE | jq -r '.canProceed')
+          echo "canProceed=$CAN_PROCEED" >> $GITHUB_ENV
+
+      - name: Check SAST result
+        if: env.canProceed != 'true'
+        run: |
+          echo "SAST scan failed. Build cancelled."
+          exit 1
+
+      - name: Deploy or further steps
+        if: env.canProceed == 'true'
+        run: |
+          echo "SAST scan passed. Proceed with further steps or deployment."
+          # Add deployment steps or other actions here
